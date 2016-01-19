@@ -1,20 +1,32 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Long arithmetc tests</title>
   <link rel="stylesheet" href="css/qunit.css">
-  <style type="text/css">
-    body{
-      word-wrap: break-word;
-    }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
+  <div id='main'>
+    <h2>Try it:</h2>
+    <input type="number" placeholder="First long number">
+    <input type="number" placeholder="Second long number">
+    <button>Compare</button>
+    <button>Compare by absolute value</button>
+    <button>Add</button>
+    <button>Subtract</button>
+    <button>Multiply</button>
+    <button>Divide</button>
+
+    <input type="text" placeholder="Result" readonly>
+  </div>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
   <script src="js/qunit.js"></script>
   <script src="js/longArithmetic.js"></script>
   <script src="js/tests.js"></script>
 </body>
+
 </html>

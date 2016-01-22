@@ -1,17 +1,48 @@
+/*jshint esversion: 6 */
 'use strict';
-
 //-------- Long Number class ----------------
-function LongNumber(number) {
-  if (!number) number = 0;
-  this.sign = number > 0 ? 1 : number === 0 ? 0 : -1;
-  var stringNumber = String(number);
-  var e = 0;
-  var eIndex = stringNumber.indexOf('e');
-  if (eIndex > -1) {
-    e = +stringNumber.slice(eIndex + 1);
-    stringNumber = stringNumber.slice(0, eIndex);
+class LongNumber extends Array {
+
+  constructor(number) {
+    //Constructor with empty args creates 0 number
+    if (!number) number = 0;
+    number = String(number);
+    //Check for number pattern ex: -123.456e+20
+    var pattern = new RegExp(/^[+-]?\d+\.?(\d+)?(e[+-]\d+)?$/g);
+    if (!pattern.test(number)) throw new TypeError('Wrong number format');
+    //If number is ok creating array
+    super();
+
+    var splittedE = String(number).split(/e(?=[+-][0-9]+$)/); //cut 'e+-d...'
+    var e = +splittedE[1] ? +splittedE[1] : 0;
+
+    var numStr = splittedE[0];
+    this.sign = numStr[0] == '-' ? -1 : 1; //1: >0, -1: <0, 0: 0;
+    numStr = numStr.replace(/^[+-]0+/g, ''); //remove zeros ang sign at the begin
+
+    //'begin' represent power of 10 of first numbers'digit ex: 456.34 => 2, 0.6 = -1
+    this.begin = numStr.lenght;
+    if (numStr.indexOf('.') > -1) this.begin = numStr.indexOf('.') - 1;
+
+    numStr = numStr.replace(/0+$/g); //remove nulls at the end
+    if (numStr === '') this.sign = 0;
   }
-  var numbersAfterComma = (stringNumber.length - stringNumber.indexOf('.') - 1) % stringNumber.length - e;
+
+  invert() {
+    this.sign = -this.sign;
+  }
+
+}
+
+/*function LongNumber(number) {
+  this.sign = number > 0 ? 1 : -1;
+  if (!number) {
+    number = 0;
+    this.sign = 0;
+  }
+  var dividedByE = +String(number).split(/e(?=[+-])/g);
+  var e = dividedByE[1] ? +dividedByE[1] : 0;
+  this.begin = dividedByE[0].indexOf('.');
   var numbersArray = stringNumber.split(/[.]?/).map(i => +i);
   this.numbers = {};
   for (var i = 0; i < numbersArray.length; i++) {
@@ -38,9 +69,6 @@ LongNumber.prototype.toString = function() {
   return s;
 };
 
-LongNumber.prototype.inverse = function() {
-  this.sign = -this.sign;
-};
 
 LongNumber.prototype.inc = function(longN) {
   lAdd(this, longN, this);
@@ -53,7 +81,7 @@ function longAdd(longA, longB) {
   return result;
 }
 
-function lAdd(longA, longB, result){
+function lAdd(longA, longB, result) {
   if (!((longA instanceof(LongNumber)) && (longB instanceof(LongNumber)) && (result instanceof(LongNumber)))) throw new TypeError('The arguments must be of type LongNumber');
   if ((longA.sign) && (longA.sign == longB.sign)) {
     result.sign = longA.sign;
@@ -85,7 +113,6 @@ function lAdd(longA, longB, result){
 
 function longSubtract(longA, longB, result) {
   if (!((longA instanceof(LongNumber)) && (longB instanceof(LongNumber)))) throw new TypeError('The argumentns must be of type LongNumber');
-  var result;
   if (longA.sign == longB.sign) {
 
   } else {
@@ -95,12 +122,12 @@ function longSubtract(longA, longB, result) {
   }
 }
 
-function longCompare(longA, longB){
-  if (longA.sign > 0){
+function longCompare(longA, longB) {
+  if (longA.sign > 0) {
     if (longB.sign <= 0) return 1;
     return longAbsCompare(longA, longB);
   }
-  if (longA.sign < 0){
+  if (longA.sign < 0) {
     if (longB.sign >= 0) return -1;
     return longAbsCompare(longB, longA);
   }
@@ -124,11 +151,12 @@ function longAbsCompare(longA, longB) {
 }
 
 function clone(obj, copy) {
-    if (obj == null || typeof obj != "object" ) return obj;
-    for (var attr in obj) {
-        if (obj.hasOwnProperty(attr)) {
-          if (typeof attr == 'object') copy[attr] = clone(obj[attr])
-            else copy[attr] = obj[attr];
-        }          
+  if (obj === null || typeof obj != "object") return obj;
+  for (var attr in obj) {
+    if (obj.hasOwnProperty(attr)) {
+      if (typeof attr == 'object') copy[attr] = clone(obj[attr]);
+      else copy[attr] = obj[attr];
     }
+  }
 }
+*/

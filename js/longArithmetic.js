@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 'use strict';
 //-------- Long Number class ----------------
-class LongNumber extends Array {
+class LongNumber {
 
   constructor(number) {
     //Constructor with empty args creates 0 number
@@ -10,26 +10,50 @@ class LongNumber extends Array {
     //Check for number pattern ex: -123.456e+20
     var pattern = new RegExp(/^[+-]?\d+\.?(\d+)?(e[+-]\d+)?$/g);
     if (!pattern.test(number)) throw new TypeError('Wrong number format');
-    //If number is ok creating array
-    super();
 
     var splittedE = String(number).split(/e(?=[+-][0-9]+$)/); //cut 'e+-d...'
     var e = +splittedE[1] ? +splittedE[1] : 0;
 
     var numStr = splittedE[0];
     this.sign = numStr[0] == '-' ? -1 : 1; //1: >0, -1: <0, 0: 0;
-    numStr = numStr.replace(/^[+-]0+/g, ''); //remove zeros ang sign at the begin
+    var dotPos = -1;
 
-    //'begin' represents power of 10 of first numbers'digit ex: 456.34: 2, 0.6: -1
-    var begin = numStr.length - 1;
-    if (numStr.indexOf('.') > -1) begin = numStr.indexOf('.') - 1;
-
-    numStr = numStr.replace(/\.|0+$/g, ''); //remove nulls at the end and '.'
-    if (numStr === '') this.sign = 0;
-
-    for (let i = numStr.length - 1; i >= 0; i--) {
-      this[begin + i] = +numStr[i];
+    //remove zeros and sign at the begin
+    var i = 0;
+    if (numStr[0] === '+' || numStr[0] == '-') i++;
+    for (; numStr[i] === '0'; i++);
+    if (numStr[i] === '.'){
+      dotPos = i;
+      i++;
+      for (; numStr[i] === '0'; i++);
     }
+
+    for (var j = numStr.length - 1; numStr[j] === '0'; j--);
+    if (numStr[j] === '.'){
+      dotPos = j;
+      j--;
+      for (; numStr[j] === '0'; j--);
+    }
+    var dot = numStr.indexOf('.');
+    if (dotPos == -1) dotPos = dot > -1 ? dot : numStr.length;
+    //'end' represents power of 10 of last numbers'digit ex: 456.34: -2, 0.6: -1
+    this.end =  dotPos - j + e;
+
+    if (i > j) {
+      this.sign = 0;
+      this.end = 0;
+      this.digits = [];
+      return;
+    }
+    this.digits = new Array(j - i + 1 - (dotPos != numStr.length));
+    for (var k = j; k > dotPos ; k--) this.digits[j - k] = +numStr[k];
+    if (dotPos > j) {
+      this.end--;
+      for (; k>= i; k--) this.digits[j - k] = +numStr[k];
+    } else {
+      for (k--; k>= i; k--) this.digits[j - k - 1] = +numStr[k];
+    }
+
   }
 
 
@@ -37,10 +61,19 @@ class LongNumber extends Array {
     this.sign = -this.sign;
   }
 
+  toString(){
+    if (this.sign === 0) return '0';
+    var str = '';
+    for (let i = this.digits.length - 1; i >= 0; i--){
+      if (-this.end == i + 1) str += '.';
+      str += this.digits[i];
+    }
+    return this.sign < 0 ? '-' + str: str;
+  }
 }
 
 /*function LongNumber(number) {
-  this.sign = number > 0 ? 1 : -1;
+  this.sign = number > 0 ? 1 : -1;4
   if (!number) {
     number = 0;
     this.sign = 0;

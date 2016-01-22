@@ -20,13 +20,18 @@ class LongNumber extends Array {
     this.sign = numStr[0] == '-' ? -1 : 1; //1: >0, -1: <0, 0: 0;
     numStr = numStr.replace(/^[+-]0+/g, ''); //remove zeros ang sign at the begin
 
-    //'begin' represent power of 10 of first numbers'digit ex: 456.34 => 2, 0.6 = -1
-    this.begin = numStr.lenght;
-    if (numStr.indexOf('.') > -1) this.begin = numStr.indexOf('.') - 1;
+    //'begin' represents power of 10 of first numbers'digit ex: 456.34: 2, 0.6: -1
+    var begin = numStr.length - 1;
+    if (numStr.indexOf('.') > -1) begin = numStr.indexOf('.') - 1;
 
-    numStr = numStr.replace(/0+$/g); //remove nulls at the end
+    numStr = numStr.replace(/\.|0+$/g, ''); //remove nulls at the end and '.'
     if (numStr === '') this.sign = 0;
+
+    for (let i = numStr.length - 1; i >= 0; i--) {
+      this[begin + i] = +numStr[i];
+    }
   }
+
 
   invert() {
     this.sign = -this.sign;

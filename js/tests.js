@@ -89,7 +89,7 @@ QUnit.test('Creating long number', function(assert) {
     assert.equal(String(sample), checked.toString(), String(sample));
   }*/
 });
-/*
+
 QUnit.test('Creating LongNumber speed test', function(assert){
   for (let i = 0; i < 1000000; i++) {
     let a = new LongNumber(Math.random() * 1000000);

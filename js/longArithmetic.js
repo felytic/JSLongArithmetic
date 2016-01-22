@@ -8,67 +8,54 @@ class LongNumber {
     if (!number) number = 0;
     number = String(number);
     //Check for number pattern ex: -123.456e+20
-    var pattern = new RegExp(/^[+-]?\d+\.?(\d+)?(e[+-]\d+)?$/g);
-    if (!pattern.test(number)) throw new TypeError('Wrong number format');
+    var pattern = /^([+-])?0*(\d*?)(0*)(\.(\d*?)0*)?(e([+-]?\d+))?$/;
+    var match = pattern.exec(number);
+    if (!match) throw new TypeError('Wrong number format');
 
-    var splittedE = String(number).split(/e(?=[+-][0-9]+$)/); //cut 'e+-d...'
-    var e = +splittedE[1] ? +splittedE[1] : 0;
+    const sign = match[1];
+    const mainDigits = match[2];
+    const zeroesBeforeDot = match[3];
+    const digitsAfterDot = match[5];
+    const e = match[7];
 
-    var numStr = splittedE[0];
-    this.sign = numStr[0] == '-' ? -1 : 1; //1: >0, -1: <0, 0: 0;
-    var dotPos = -1;
-
-    //remove zeros and sign at the begin
-    var i = 0;
-    if (numStr[0] === '+' || numStr[0] == '-') i++;
-    for (; numStr[i] === '0'; i++);
-    if (numStr[i] === '.'){
-      dotPos = i;
-      i++;
-      for (; numStr[i] === '0'; i++);
-    }
-
-    for (var j = numStr.length - 1; numStr[j] === '0'; j--);
-    if (numStr[j] === '.'){
-      dotPos = j;
-      j--;
-      for (; numStr[j] === '0'; j--);
-    }
-    var dot = numStr.indexOf('.');
-    if (dotPos == -1) dotPos = dot > -1 ? dot : numStr.length;
-    //'end' represents power of 10 of last numbers'digit ex: 456.34: -2, 0.6: -1
-    this.end =  dotPos - j + e;
-
-    if (i > j) {
-      this.sign = 0;
-      this.end = 0;
-      this.digits = [];
-      return;
-    }
-    this.digits = new Array(j - i + 1 - (dotPos != numStr.length));
-    for (var k = j; k > dotPos ; k--) this.digits[j - k] = +numStr[k];
-    if (dotPos > j) {
-      this.end--;
-      for (; k>= i; k--) this.digits[j - k] = +numStr[k];
+    this.end = e ? +e : 0;
+    this.sign = sign == '-' ? -1 : 1;
+    if (digitsAfterDot) {
+      this.digits = new Array(digitsAfterDot.length + mainDigits.length);
+      this.end -= digitsAfterDot.length;
+      for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
+        this.digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
+      }
+      for (let i = mainDigits.length - 1; i >= 0; i--) {
+        this.digits[mainDigits.length - i - 1+ digitsAfterDot.length] = +mainDigits[i];
+      }
     } else {
-      for (k--; k>= i; k--) this.digits[j - k - 1] = +numStr[k];
+      this.end += zeroesBeforeDot.length;
+      this.digits = new Array(mainDigits.length);
+      if (!mainDigits) {
+        this.sign = 0;
+        this.end = 0;
+        return;
+      }
+      for (let i = mainDigits.length - 1; i >= 0; i--) {
+        this.digits[mainDigits.length - i - 1] = +mainDigits[i];
+      }
     }
 
   }
-
 
   invert() {
     this.sign = -this.sign;
   }
 
-  toString(){
+  toString() {
     if (this.sign === 0) return '0';
     var str = '';
-    for (let i = this.digits.length - 1; i >= 0; i--){
+    for (let i = this.digits.length - 1; i >= 0; i--) {
       if (-this.end == i + 1) str += '.';
       str += this.digits[i];
     }
-    return this.sign < 0 ? '-' + str: str;
+    return this.sign < 0 ? '-' + str : str;
   }
 }
 

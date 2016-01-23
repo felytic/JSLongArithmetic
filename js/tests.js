@@ -17,6 +17,48 @@ QUnit.test('Creating long number', function(assert) {
   checked = new LongNumber(0.00000);
   assert.propEqual(checked, sample, '0.00000');
 
+	sample = {
+    sign: -1,
+    end: 2,
+    digits: [2, 1]
+  };
+  checked = new LongNumber('-1.2e+3');
+  assert.propEqual(checked, sample, '-1.2e+3');
+
+	sample = {
+    sign: 1,
+    end: 2,
+    digits: [2, 1]
+  };
+  checked = new LongNumber('1.2e+3');
+  assert.propEqual(checked, sample, '1.2e+3');
+
+	sample = {
+    sign: -1,
+    end: -4,
+    digits: [2, 1]
+  };
+  checked = new LongNumber('-1.2e-3');
+  assert.propEqual(checked, sample, '-1.2e-3');
+
+	sample = {
+    sign: 1,
+    end: -4,
+    digits: [2, 1]
+  };
+
+  checked = new LongNumber('1.2e-3');
+  assert.propEqual(checked, sample, '1.2e-3');
+
+	sample = {
+    sign: 1,
+    end: -4,
+    digits: [2, 1]
+  };
+
+  checked = new LongNumber(1.2e-3);
+  assert.propEqual(checked, sample, '1.2e-3');
+
   sample = {
     sign: 0,
     end: 0,
@@ -32,6 +74,14 @@ QUnit.test('Creating long number', function(assert) {
   };
   checked = new LongNumber(1);
   assert.propEqual(checked, sample, '1');
+
+	sample = {
+    sign: 1,
+    end: -3,
+    digits: [1, 2, 0, 0, 2, 1]
+  };
+  checked = new LongNumber(120.021);
+  assert.propEqual(checked, sample, '120.021');
 
   sample = {
     sign: -1,
@@ -65,31 +115,44 @@ QUnit.test('Creating long number', function(assert) {
   checked = new LongNumber('00081941760005429380000.00');
   assert.propEqual(checked, sample, '00081941760005429380000.00');
 
-  /*for (var i = 0; i < 10; i++) {
-    var sample = Math.random();
-    var checked = new LongNumber(sample);
+  for (let i = 0; i < 10; i++) {
+    sample = Math.random();
+    checked = new LongNumber(sample);
     assert.equal(checked.toString(), String(sample), String(sample));
   }
 
-  for (var i = 0; i < 10; i++) {
-    var sample = -Math.random();
-    var checked = new LongNumber(sample);
+  for (let i = 0; i < 10; i++) {
+    sample = -Math.random();
+    checked = new LongNumber(sample);
     assert.equal(checked.toString(), String(sample), String(sample));
   }
 
-  for (var i = 0; i < 10; i++) {
-    var sample = Math.random() * 1000000;
-    var checked = new LongNumber(sample);
-    assert.equal(String(sample), checked.toString(), String(sample));
+  for (let i = 0; i < 10; i++) {
+    sample = Math.random() * 1000000;
+    checked = new LongNumber(sample);
+    assert.equal(checked.toString(), String(sample), String(sample));
   }
 
-  for (var i = 0; i < 10; i++) {
-    var sample = -Math.random() * 1000000;
-    var checked = new LongNumber(sample);
-    assert.equal(String(sample), checked.toString(), String(sample));
-  }*/
+  for (let i = 0; i < 10; i++) {
+    sample = -Math.random() * 1000000;
+    checked = new LongNumber(sample);
+    assert.equal(checked.toString(), String(sample), String(sample));
+  }
+
+  for (let i = 0; i < 10; i++) {
+		sample = Math.random() * (1e+18);
+    checked = new LongNumber(sample + 'e+10');
+    assert.equal(checked.toString(), sample + '0000000000', sample + '0000000000');
+  }
 });
 
+QUnit.test('toString() test', function(assert){
+		assert.equal((new LongNumber(0)).toString(),'0', '0');
+		assert.equal((new LongNumber('-0')).toString(),'0', '0');
+		assert.equal((new LongNumber(1)).toString(),'1', '1');
+		assert.equal((new LongNumber(-1)).toString(),'-1', '-1');
+});
+/*
 QUnit.test('Creating LongNumber speed test', function(assert){
   for (let i = 0; i < 1000000; i++) {
     let a = new LongNumber(Math.random() * 1000000);

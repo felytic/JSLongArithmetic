@@ -1,3 +1,4 @@
+
 /*jshint esversion: 6 */
 'use strict';
 //-------- Long Number class ----------------
@@ -8,27 +9,38 @@ class LongNumber {
     if (!number) number = 0;
     number = String(number);
     //Check for number pattern ex: -123.456e+20
-    var pattern = /^([+-])?0*(\d*?)(0*)(\.(\d*?)0*)?(e([+-]?\d+))?$/;
+    var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*)?0*)?(e([+-]?\d+))?$/;
     var match = pattern.exec(number);
     if (!match) throw new TypeError('Wrong number format');
 
     const sign = match[1];
     const mainDigits = match[2];
     const zeroesBeforeDot = match[3];
-    const digitsAfterDot = match[5];
-    const e = match[7];
+		const zeroesAfterDot = match[5];
+    const digitsAfterDot = match[6];
+    const e = match[8];
 
     this.end = e ? +e : 0;
     this.sign = sign == '-' ? -1 : 1;
     if (digitsAfterDot) {
-      this.digits = new Array(digitsAfterDot.length + mainDigits.length);
-      this.end -= digitsAfterDot.length;
-      for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
-        this.digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
-      }
-      for (let i = mainDigits.length - 1; i >= 0; i--) {
-        this.digits[mainDigits.length - i - 1+ digitsAfterDot.length] = +mainDigits[i];
-      }
+      this.end -= digitsAfterDot.length + zeroesAfterDot.length;	
+			if (mainDigits){
+					this.digits = new Array(digitsAfterDot.length + mainDigits.length + zeroesBeforeDot.length + zeroesAfterDot.length);
+					for (let i = zeroesAfterDot.length - 1; i >= 0; i--) {
+							this.digits[zeroesAfterDot.length - i - 1 + digitsAfterDot.length] = +zeroesAfterDot[i];
+					}
+					for (let i = zeroesBeforeDot.length - 1; i >= 0; i--) {
+							this.digits[zeroesBeforeDot.length - i - 1 + zeroesAfterDot.length + digitsAfterDot.length] = +zeroesBeforeDot[i];
+					}
+					for (let i = mainDigits.length - 1; i >= 0; i--) {
+							this.digits[mainDigits.length - i - 1 + zeroesBeforeDot.length + zeroesAfterDot.length + digitsAfterDot.length] = +mainDigits[i];
+					}
+			} else {
+					this.digits = new Array(digitsAfterDot.length);
+			}
+			for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
+							this.digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
+					}	
     } else {
       this.end += zeroesBeforeDot.length;
       this.digits = new Array(mainDigits.length);
@@ -50,11 +62,13 @@ class LongNumber {
 
   toString() {
     if (this.sign === 0) return '0';
-    var str = '';
+    var str = -this.end >= this.digits.length ? '0.' : '';
+		for (let i = -this.end - this.digits.length; i > 0; i--) str += '0';
     for (let i = this.digits.length - 1; i >= 0; i--) {
-      if (-this.end == i + 1) str += '.';
+      if (-this.end == i + 1 && str != '0.') str += '.';
       str += this.digits[i];
     }
+		for (let i = 0; i < this.end; i++) str += '0';
     return this.sign < 0 ? '-' + str : str;
   }
 }

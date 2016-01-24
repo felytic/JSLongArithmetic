@@ -1,76 +1,206 @@
-
 /*jshint esversion: 6 */
-'use strict';
 //-------- Long Number class ----------------
 class LongNumber {
-
-  constructor(number) {
-    //Constructor with empty args creates 0 number
-    if (!number) number = 0;
+  constructor(number = 0) {
     number = String(number);
     //Check for number pattern ex: -123.456e+20
-    var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*)?0*)?(e([+-]?\d+))?$/;
+    var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
     var match = pattern.exec(number);
     if (!match) throw new TypeError('Wrong number format');
 
     const sign = match[1];
     const mainDigits = match[2];
     const zeroesBeforeDot = match[3];
-		const zeroesAfterDot = match[5];
+    const zeroesAfterDot = match[5];
     const digitsAfterDot = match[6];
     const e = match[8];
 
-    this.end = e ? +e : 0;
-    this.sign = sign == '-' ? -1 : 1;
+    this._end = e ? +e : 0;
+    this._sign = sign == '-' ? -1 : 1;
     if (digitsAfterDot) {
-      this.end -= digitsAfterDot.length + zeroesAfterDot.length;	
-			if (mainDigits){
-					this.digits = new Array(digitsAfterDot.length + mainDigits.length + zeroesBeforeDot.length + zeroesAfterDot.length);
-					for (let i = zeroesAfterDot.length - 1; i >= 0; i--) {
-							this.digits[zeroesAfterDot.length - i - 1 + digitsAfterDot.length] = +zeroesAfterDot[i];
-					}
-					for (let i = zeroesBeforeDot.length - 1; i >= 0; i--) {
-							this.digits[zeroesBeforeDot.length - i - 1 + zeroesAfterDot.length + digitsAfterDot.length] = +zeroesBeforeDot[i];
-					}
-					for (let i = mainDigits.length - 1; i >= 0; i--) {
-							this.digits[mainDigits.length - i - 1 + zeroesBeforeDot.length + zeroesAfterDot.length + digitsAfterDot.length] = +mainDigits[i];
-					}
-			} else {
-					this.digits = new Array(digitsAfterDot.length);
-			}
-			for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
-							this.digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
-					}	
+      this._end -= digitsAfterDot.length + zeroesAfterDot.length;
+      if (mainDigits) {
+        this._digits = new Array(digitsAfterDot.length + mainDigits.length + zeroesBeforeDot.length + zeroesAfterDot.length);
+        for (let i = zeroesAfterDot.length - 1; i >= 0; i--) {
+          this._digits[zeroesAfterDot.length - i - 1 + digitsAfterDot.length] = +zeroesAfterDot[i];
+        }
+        for (let i = zeroesBeforeDot.length - 1; i >= 0; i--) {
+          this._digits[zeroesBeforeDot.length - i - 1 + zeroesAfterDot.length + digitsAfterDot.length] = +zeroesBeforeDot[i];
+        }
+        for (let i = mainDigits.length - 1; i >= 0; i--) {
+          this._digits[mainDigits.length - i - 1 + zeroesBeforeDot.length + zeroesAfterDot.length + digitsAfterDot.length] = +mainDigits[i];
+        }
+      } else {
+        this._digits = new Array(digitsAfterDot.length);
+      }
+      for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
+        this._digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
+      }
     } else {
-      this.end += zeroesBeforeDot.length;
-      this.digits = new Array(mainDigits.length);
+      this._end += zeroesBeforeDot.length;
+      this._digits = new Array(mainDigits.length);
       if (!mainDigits) {
-        this.sign = 0;
-        this.end = 0;
+        this._sign = 0;
+        this._end = 0;
         return;
       }
       for (let i = mainDigits.length - 1; i >= 0; i--) {
-        this.digits[mainDigits.length - i - 1] = +mainDigits[i];
+        this._digits[mainDigits.length - i - 1] = +mainDigits[i];
       }
     }
 
   }
 
+  _accessError(propertyName) {
+    throw new Error('Unable to set property ' + propertyName + ' from outside of the class');
+  }
+
+  //------ Getters and setters ------------------------------
+  get sign() {
+    return this._sign;
+  }
+  set sign(value) {
+    this._accessError('sign');
+  }
+
+  get digits() {
+    return this._digits.map(i => i);
+  }
+  set digits(value) {
+    this._accessError('digits');
+  }
+
+  get begin() {
+    return this._digits.length + this._end - 1;
+  }
+  set begin(value) {
+    this._accessError('begin');
+  }
+
+
+  get end() {
+    return this._end;
+  }
+  set end(value) {
+    this._accessError('end');
+  }
+
+  //------ Methods --------------------------------------
   invert() {
-    this.sign = -this.sign;
+    this._sign = -this._sign;
   }
 
   toString() {
-    if (this.sign === 0) return '0';
-    var str = -this.end >= this.digits.length ? '0.' : '';
-		for (let i = -this.end - this.digits.length; i > 0; i--) str += '0';
-    for (let i = this.digits.length - 1; i >= 0; i--) {
-      if (-this.end == i + 1 && str != '0.') str += '.';
-      str += this.digits[i];
+    if (this._sign === 0) return '0';
+    var str = -this._end >= this._digits.length ? '0.' : '';
+    for (let i = -this._end - this._digits.length; i > 0; i--) str += '0';
+    for (let i = this._digits.length - 1; i >= 0; i--) {
+      if (-this._end == i + 1 && str != '0.') str += '.';
+      str += this._digits[i];
     }
-		for (let i = 0; i < this.end; i++) str += '0';
-    return this.sign < 0 ? '-' + str : str;
+    for (let i = 0; i < this._end; i++) str += '0';
+    return this._sign < 0 ? '-' + str : str;
   }
+
+  inc(longN = 1) {
+     if (!(longN instanceof(LongNumber))){
+      longN = new LongNumber(longN);
+    }
+    if (longN.sign === 0) return;
+    if (longN.sign != this._sign) {
+      if (this.sign === 0){
+	this._digits = longN.digits;
+	this._sign = longN.sign;
+	return;
+      }
+      longN.invert();
+      this.dec(longN);
+      longN.invert();
+      return;
+    }
+
+    var nums = longN.digits;
+    var addedBefore = 0;
+    var addedAfter = 0;
+
+    if (longN.end < this._end) {
+      addedAfter = this._end - longN.end;
+      Array.prototype.unshift.apply(this._digits, new Array(addedAfter));
+      this._end = longN.end;
+    }
+
+    if (longN.begin > this.begin) {
+      addedBefore = longN.begin - this.begin;
+      Array.prototype.push.apply(this._digits, new Array(addedBefore));
+    }
+
+    for (let i = 0; i < addedAfter; i++) {
+      this._digits[i] = nums[i] ? nums[i] : 0;
+    }
+
+    for (let i = 0; i < addedBefore; i++) {
+      this._digits[this.digits.length - i - 1] = nums[nums.length - i - 1] ? nums[nums.length - i - 1] : 0;
+    }
+
+    var to = Math.min(this.begin - addedBefore + 1, longN.begin);
+    for (var i = Math.max(this._end + addedAfter, longN.end + addedAfter); i < to; i++) {
+      let pos = i - this._end;
+      this._digits[pos] += nums[i - longN.end];
+      if (this._digits[pos] > 9) {
+        this._digits[pos] -= 10;
+        this._digits[pos + 1] += 1;
+      }
+    }
+
+    let pos = to - this._end;
+    if ((pos < this._digits.length - addedBefore) && (i == to)) this._digits[pos] += nums[to - longN.end];
+    if (this._digits[pos] > 9) {
+      this._digits[pos] -= 10;
+      if (!this._digits[pos + 1]) {
+        this._digits[pos + 1] = 1;
+      } else {
+        this._digits[pos + 1] += 1;
+      }
+    }
+
+    for (let i = pos + 1; i < this._digits.length - 1; i++){
+      if (this._digits[i] > 9){
+	this._digits[i] -= 10;
+	this._digits[i + 1] += 1;
+      } else {
+	break;
+      }
+    }
+    if (this._digits[this._digits.length - 1] > 9){
+      this._digits[this._digits.length - 1] -= 10;
+      this._digits.push(1);
+    }
+
+    for (var i = 0; this._digits[i] === 0; i++);
+    this._end += i;
+    this._digits.splice(0, i);
+
+  }
+
+
+  dec(longN = 1) {
+    if (!(longN instanceof(LongNumber))){
+      longN = new LongNumber(longN);
+    }
+    if (longN.sign === 0) return;
+    if (longN.sign != this.sign) {
+      if (this.sign === 0){
+	this._digits = longN.digits;
+	this._sign = -longN.sign;
+	return;
+      }
+      longN.invert();
+      this.inc(longN);
+      longN.invert();
+      return;
+    }
+  }
+
 }
 
 /*function LongNumber(number) {

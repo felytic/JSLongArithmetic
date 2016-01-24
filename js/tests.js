@@ -345,3 +345,17 @@ QUnit.test('Incrementing number', function(assert) {
     assert.propEqual(checked, sample, a + ' =+ ' + b + ' = ' + c);
   }
 });
+
+QUnit.test('Adding speed test', function(assert){
+  var a = Math.abs(Math.random());
+  var e1 = Math.floor(Math.random() * 100) - 50;
+  var longA = new LongNumber(a + 'e' + e1);
+  for (let i = 0; i < 500000; i++){  
+    var e2 = Math.floor(Math.random() * 100) - 50;
+    var b = Math.abs(Math.random());
+    longA.inc(new LongNumber(b + 'e' + e2));
+    
+  }
+
+  assert.equal(true, true, '500000 tests');
+});

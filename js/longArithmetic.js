@@ -1,10 +1,11 @@
 /*jshint esversion: 6 */
 //-------- Long Number class ----------------
+var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
+const base = 2; //10^16
 class LongNumber {
   constructor(number = 0) {
     number = String(number);
     //Check for number pattern ex: -123.456e+20
-    var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
     var match = pattern.exec(number);
     if (!match) throw new TypeError('Wrong number format');
 
@@ -15,84 +16,64 @@ class LongNumber {
     const digitsAfterDot = match[6];
     const e = match[8];
 
-    this._end = e ? +e : 0;
-    this._sign = sign == '-' ? -1 : 1;
+    this.end = e ? +e : 0;
+    this.sign = sign == '-' ? -1 : 1;
+    var digits = '';
     if (digitsAfterDot) {
-      this._end -= digitsAfterDot.length + zeroesAfterDot.length;
+      this.end -= digitsAfterDot.length + zeroesAfterDot.length;
       if (mainDigits) {
-        this._digits = new Array(digitsAfterDot.length + mainDigits.length + zeroesBeforeDot.length + zeroesAfterDot.length);
-        for (let i = zeroesAfterDot.length - 1; i >= 0; i--) {
-          this._digits[zeroesAfterDot.length - i - 1 + digitsAfterDot.length] = +zeroesAfterDot[i];
-        }
-        for (let i = zeroesBeforeDot.length - 1; i >= 0; i--) {
-          this._digits[zeroesBeforeDot.length - i - 1 + zeroesAfterDot.length + digitsAfterDot.length] = +zeroesBeforeDot[i];
-        }
-        for (let i = mainDigits.length - 1; i >= 0; i--) {
-          this._digits[mainDigits.length - i - 1 + zeroesBeforeDot.length + zeroesAfterDot.length + digitsAfterDot.length] = +mainDigits[i];
-        }
+        digits += mainDigits + zeroesBeforeDot + zeroesAfterDot;
+      } 
+        digits += digitsAfterDot;
       } else {
-        this._digits = new Array(digitsAfterDot.length);
-      }
-      for (let i = digitsAfterDot.length - 1; i >= 0; i--) {
-        this._digits[digitsAfterDot.length - i - 1] = +digitsAfterDot[i];
-      }
-    } else {
-      this._end += zeroesBeforeDot.length;
-      this._digits = new Array(mainDigits.length);
+      this.end += zeroesBeforeDot.length;
+      digits = mainDigits;
       if (!mainDigits) {
-        this._sign = 0;
-        this._end = 0;
+        this.sign = 0;
+        this.end = 0;
+        this.digits = {};
         return;
       }
-      for (let i = mainDigits.length - 1; i >= 0; i--) {
-        this._digits[mainDigits.length - i - 1] = +mainDigits[i];
+    }
+      var shift = Math.abs((base + this.end) % base);    
+      this.end -= shift;
+      var endZeroes = '';
+      for (let i = 0; i < shift; i++) endZeroes += '0';
+      digits += endZeroes;
+      this.digits = {};
+      this.begin = Math.floor((this.end + digits.length) / base);
+      this.digits[this.begin] = +digits.slice(0, digits.length % base);
+      for (let i = digits.length - base; i >= 0; i -= base){
+        this.digits[Math.floor((digits.length + this.end - i) / base) - 1] = +digits.slice(i, i + base);        
       }
-    }
+      this.end /= base;
 
   }
-
-  _accessError(propertyName) {
-    throw new Error('Unable to set property ' + propertyName + ' from outside of the class');
-  }
-
-  //------ Getters and setters ------------------------------
-  get sign() { return this._sign;}
-  set sign(value) { this._accessError('sign');  }
-
-  get digits() { return this._digits.map(i => i); }
-  set digits(value) { this._accessError('digits'); }
-
-  get begin() { return this._digits.length + this._end - 1; }
-  set begin(value) { this._accessError('begin'); }
-
-
-  get end() { return this._end; }
-  set end(value) { this._accessError('end'); }
-
   //------ Methods --------------------------------------
-  invert() { this._sign = -this._sign;}
-
   toString() {
-    if (this._sign === 0) return '0';
-    var str = -this._end >= this._digits.length ? '0.' : '';
-    for (let i = -this._end - this._digits.length; i > 0; i--) str += '0';
-    for (let i = this._digits.length - 1; i >= 0; i--) {
-      if (-this._end == i + 1 && str != '0.') str += '.';
-      str += this._digits[i];
+    if (this.sign === 0) return '0';
+    var str = this.sign == -1 ? '-' : '';
+    var digit;
+    for (let i = this.begin > 0 ? this.begin : 0; i >= this.end; i--){
+      if (i == -1) {
+        str += '.'
+      }
+      digit = this.digits[i] ? '' + this.digits[i] : '0';
+      while (digit.length < base && i < this.begin) digit = '0' + digit;
+      str += digit;
     }
-    for (let i = 0; i < this._end; i++) str += '0';
-    return this._sign < 0 ? '-' + str : str;
+    return str;
   }
 
-//-----Incrementing current number by another log number ----
+  //-----Incrementing current number by another log number ----
   inc(longN = 1) {
     longN = LongNumber.toLongNumber(longN);
     if (longN.sign === 0) return;
-    if (longN.sign != this._sign) {
+    if (longN.sign != this.sign) {
       if (this.sign === 0){
-	this._digits = longN.digits;
-	this._sign = longN.sign;
-	return;
+        this.digits = longN.digits;
+        this.sign = longN.sign;
+        return;
       }
       longN.invert();
       this.dec(longN);
@@ -101,43 +82,43 @@ class LongNumber {
     }
 
     var nums = longN.digits;
-    var sum = this._digits;
+    var sum = this.digits;
 
-    //         [..this.digits..]   __\   [.......this.digits..]
-    //    [..longN.digits..]         /   [..longN.digits..]
+    //         [..this.digits..]   _\   [.......this.digits..]
+    //    [..longN.digits..]        /   [..longN.digits..]
     var addedAfter = 0;
-    if (longN.end < this._end) {
-      addedAfter = this._end - longN.end;
+    if (longN.end < this.end) {
+      addedAfter = this.end - longN.end;
       Array.prototype.unshift.apply(sum, new Array(addedAfter));
-      this._end = longN.end;
+      this.end = longN.end;
       for (let i = 0; i < addedAfter; i++) {
-	sum[i] = nums[i] ? nums[i] : 0;
+        sum[i] = nums[i] ? nums[i] : 0;
       }
     }
 
-    //[..this.digits..]           __\   [..this.digits..........]
+    //[..this.digits..]           _\   [..this.digits..........]
     //       [..longN.digits..]     /          [..longN.digits..]
     var addedBefore = 0;
     if (longN.begin > this.begin) {
       addedBefore = longN.begin - this.begin;
       Array.prototype.push.apply(sum, new Array(addedBefore));
       for (let i = 0; i < addedBefore; i++) {
-	sum[sum.length - i - 1] = nums[nums.length - i - 1] ? nums[nums.length - i - 1] : 0;
+        sum[sum.length - i - 1] = nums[nums.length - i - 1] ? nums[nums.length - i - 1] : 0;
       }
     }
-    
+
     //adding two arrays
-    var from =  Math.max(this._end + addedAfter, longN.end + addedAfter);
+    var from =  Math.max(this.end + addedAfter, longN.end + addedAfter);
     var to = Math.min(this.begin - addedBefore, longN.begin);
     for (var i = from; i <= to; i++) {
-      sum[i - this._end] += nums[i - longN.end];
+      sum[i - this.end] += nums[i - longN.end];
     }
-    
+
     const last =  sum.length - 1;
-    for (let i = from - this._end; i < last; i++){
+    for (let i = from - this.end; i < last; i++){
       if (sum[i] > 9){
-	sum[i] -= 10;
-	sum[i + 1] += 1;
+        sum[i] -= 10;
+        sum[i + 1] += 1;
       }
     }
 
@@ -155,9 +136,9 @@ class LongNumber {
     if (longN.sign === 0) return;
     if (longN.sign != this.sign) {
       if (this.sign === 0){
-	this._digits = longN.digits;
-	this._sign = -longN.sign;
-	return;
+        this.digits = longN.digits;
+        this.sign = -longN.sign;
+        return;
       }
       longN.invert();
       this.inc(longN);
@@ -165,15 +146,15 @@ class LongNumber {
       return;
     }
   }
-  
+
   sliceEndZeroes(){  //[0,0,0,0,0,..this.digits..] => [..this.digits..]
     if (this.sign === 0) return;
-    for (var i = 0; this._digits[i] === 0; i++);
-    this._end += i;
-    if (i) this._digits.splice(0, i);
+    for (var i = 0; this.digits[i] === 0; i++);
+    this.end += i;
+    if (i) this.digits.splice(0, i);
   }
 
-//----------Static Methods ---------------------
+  //----------Static Methods ---------------------
   static longCompare(longA, longB) {
     longA = LongNumber.toLongNumber(longA);
     longB = LongNumber.toLongNumber(longB);

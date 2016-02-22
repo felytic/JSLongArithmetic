@@ -2,7 +2,7 @@
 
 //-------- Long Number class ----------------
 var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
-const base = 16; //10^16
+const base = 15; //10^15
 
 class LongNumber {
   constructor(number = 0) {
@@ -79,4 +79,61 @@ class LongNumber {
     }
     return str.substring(0, lastDigit + 1);
   }
+  
+  invert(number){
+    var result = new LongNumber();
+    if (number.sign == 0) return result;
+
+    result.begin = this.begin;
+    result.end = this.end;
+    result.sign = -this.sign;
+    result.digits = {};
+    for (item in this.digits){
+      result.digits[item] = this.digits[item];
+    }
+    return result;
+  }
+
+  //----------Static Methods ---------------------
+  static compare(longA, longB) {
+    longA = LongNumber.toLongNumber(longA);
+    longB = LongNumber.toLongNumber(longB);
+    if (longA.sign > 0) {
+      if (longB.sign <= 0) return 1;
+      return LongNumber.absCompare(longA, longB);
+    }
+    if (longA.sign < 0) {
+      if (longB.sign >= 0) return -1;
+      return LongNumber.absCompare(longB, longA);
+    }
+    if (longB.sign > 0) return -1;
+    if (longB.sign === 0) return 0;
+    if (longB.sign < 0) return 1;
+  }
+
+  static absCompare(longA, longB) {
+    longA = LongNumber.toLongNumber(longA);
+    longB = LongNumber.toLongNumber(longB);
+    if (longA.begin > longB.begin) return 1;
+    if (longA.begin < longB.begin) return -1;
+    for (var i = longA.begin; i >= longA.end; i--) {
+      var a = longA.digits[i] ? longA.digits[i] : 0;
+      var b = longB.digits[i] ? longB.digits[i] : 0;
+      if (a > b) return 1;
+      if (a < b) return -1;
+    }
+    if (longB.end < longA.end) return -1;
+    else return 0;
+  }
+
+  static toLongNumber(x){
+    if (!(x instanceof LongNumber)) return new LongNumber(x);
+    return x;
+  }
+  
+  static add(a, b){
+    toLongNumber(a);
+    toLongNumber(b);
+  }
 } 
+

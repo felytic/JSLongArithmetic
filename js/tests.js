@@ -36,6 +36,7 @@ QUnit.test('Creating long number', function(assert) {
 
   sample = {
     sign: 1,
+    begin: 0,
     end: 0,
     digits: {0: 1}
   };
@@ -73,97 +74,97 @@ QUnit.test('Creating long number', function(assert) {
     assert.equal(checked.toString(), sample + '0000000000', sample + '0000000000');
   }
 });
-
+/*
 QUnit.test('toString() test', function(assert) {
   'use strict';
   assert.equal((new LongNumber(0)).toString(), '0', '0');
   assert.equal((new LongNumber('-0')).toString(), '0', '0');
   assert.equal((new LongNumber(1)).toString(), '1', '1');
   assert.equal((new LongNumber(-1)).toString(), '-1', '-1');
-});
+  });
+
+QUnit.test('Creating LongNumber speed test', function(assert){
+    for (let i = 0; i < 1000000; i++) {
+    let a = new LongNumber(Math.random() * 1000000);
+    }
+    assert.equal(1, 1, '1000000 creations');
+    });
+
+QUnit.test('Creating number speed test', function(assert){
+    for (let i = 0; i < 1000000; i++) {
+    let a = Math.random() * 1000000;
+    }
+    assert.equal(1, 1, '1000000 creations');
+    });
 /*
-   QUnit.test('Creating LongNumber speed test', function(assert){
-   for (let i = 0; i < 1000000; i++) {
-   let a = new LongNumber(Math.random() * 1000000);
-   }
-   assert.equal(1, 1, '1000000 creations');
+   QUnit.test('Comparing two long numbers', function(assert) {
+   assert.equal(longCompare(new LongNumber(0), new LongNumber(0)), 0, '0 == 0 ');
+   assert.equal(longCompare(new LongNumber(1), new LongNumber(1)), 0, '1 == 1 ');
+   assert.equal(longCompare(new LongNumber(-1), new LongNumber(-1)), 0, '-1 == -1 ');
+   assert.equal(longCompare(new LongNumber(12.34), new LongNumber(12.34)), 0, '12.34 == 12.34 ');
+   assert.equal(longCompare(new LongNumber(1e+2), new LongNumber(100)), 0, '1e+2 == 100 ');
+   assert.equal(longCompare(new LongNumber(-0), new LongNumber(0)), 0, '-0 == 0 ');
+
+   assert.equal(longCompare(new LongNumber(1), new LongNumber(0)), 1, '1 > 0 ');
+   assert.equal(longCompare(new LongNumber(1000), new LongNumber(100)), 1, '1000 > 100 ');
+   assert.equal(longCompare(new LongNumber(1.00000000001), new LongNumber(1)), 1, '1.00000000001 > 1 ');
+   assert.equal(longCompare(new LongNumber(87e-45), new LongNumber(87e-46)), 1, '87e-45 > 87e-46 ');
+
+   assert.equal(longCompare(new LongNumber(0), new LongNumber(1)), -1, '0 < 1 ');
+   assert.equal(longCompare(new LongNumber(100), new LongNumber(1000)), -1, '100 < 1000 ');
+   assert.equal(longCompare(new LongNumber(1), new LongNumber(1.00000000001)), -1, '1 < 1.00000000001 ');
+   assert.equal(longCompare(new LongNumber(87e-46), new LongNumber(87e-45)), -1, '87e-46 < 87e-45 ');
+
+   assert.equal(longCompare(new LongNumber(0), new LongNumber(-1)), 1, '0 > -1 ');
+   assert.equal(longCompare(new LongNumber(100), new LongNumber(-1000)), 1, '100 > -1000 ');
+   assert.equal(longCompare(new LongNumber(1), new LongNumber(-1.00000000001)), 1, '1 > -1.00000000001 ');
+   assert.equal(longCompare(new LongNumber(87e-46), new LongNumber(-87e-45)), 1, '87e-46 > -87e-45 ');
+
+   assert.equal(longCompare(new LongNumber(-100), new LongNumber(-1000)), 1, '-100 > -1000 ');
+   assert.equal(longCompare(new LongNumber(-1), new LongNumber(-1.00000000001)), 1, '-1 > -1.00000000001 ');
+   assert.equal(longCompare(new LongNumber(-87e-46), new LongNumber(-87e-45)), 1, '-87e-46 >  -87e-45 ');
    });
 
-   QUnit.test('Creating number speed test', function(assert){
-   for (let i = 0; i < 1000000; i++) {
-   let a = Math.random() * 1000000;
+   QUnit.test('Adding long number', function(assert) {
+   var sample = new LongNumber(0);
+   var checked = longAdd(new LongNumber(0), new LongNumber(0));
+   assert.propEqual(checked, sample, '0 + 0 = 0 ');
+
+   var sample = new LongNumber(1);
+   var checked = longAdd(new LongNumber(0), new LongNumber(1));
+   assert.propEqual(checked, sample, '0 + 1 = 1 ');
+
+   var sample = new LongNumber(1.23);
+   var checked = longAdd(new LongNumber(1.23), new LongNumber(0));
+   assert.propEqual(checked, sample, '1.23 + 0 = 0 ');
+
+   var sample = new LongNumber(5.79);
+   var checked = longAdd(new LongNumber(1.23), new LongNumber(4.56));
+   assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
+
+   var sample = new LongNumber(1000);
+   var checked = longAdd(new LongNumber(999.9999), new LongNumber(0.0001));
+   assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
+
+   for (var i = 0; i < 10; i++) {
+   var a = +String(Math.random() / 2).slice(0, 6);
+   var b = +String(Math.random() / 2).slice(0, 6);
+   var c = +(a + b).toPrecision(6);
+
+   var sample = new LongNumber(c);
+   var checked = longAdd(new LongNumber(a), new LongNumber(b));
+   assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
    }
-   assert.equal(1, 1, '1000000 creations');
-   });
-/*
-QUnit.test('Comparing two long numbers', function(assert) {
-assert.equal(longCompare(new LongNumber(0), new LongNumber(0)), 0, '0 == 0 ');
-assert.equal(longCompare(new LongNumber(1), new LongNumber(1)), 0, '1 == 1 ');
-assert.equal(longCompare(new LongNumber(-1), new LongNumber(-1)), 0, '-1 == -1 ');
-assert.equal(longCompare(new LongNumber(12.34), new LongNumber(12.34)), 0, '12.34 == 12.34 ');
-assert.equal(longCompare(new LongNumber(1e+2), new LongNumber(100)), 0, '1e+2 == 100 ');
-assert.equal(longCompare(new LongNumber(-0), new LongNumber(0)), 0, '-0 == 0 ');
 
-assert.equal(longCompare(new LongNumber(1), new LongNumber(0)), 1, '1 > 0 ');
-assert.equal(longCompare(new LongNumber(1000), new LongNumber(100)), 1, '1000 > 100 ');
-assert.equal(longCompare(new LongNumber(1.00000000001), new LongNumber(1)), 1, '1.00000000001 > 1 ');
-assert.equal(longCompare(new LongNumber(87e-45), new LongNumber(87e-46)), 1, '87e-45 > 87e-46 ');
+   for (var i = 0; i < 10; i++) {
+   var a = +String(Math.random() * 1000000).slice(0, 12);
+   var b = +String(Math.random() * 1000000).slice(0, 12);
+   var c = +(a + b).toPrecision(13);
 
-assert.equal(longCompare(new LongNumber(0), new LongNumber(1)), -1, '0 < 1 ');
-assert.equal(longCompare(new LongNumber(100), new LongNumber(1000)), -1, '100 < 1000 ');
-assert.equal(longCompare(new LongNumber(1), new LongNumber(1.00000000001)), -1, '1 < 1.00000000001 ');
-assert.equal(longCompare(new LongNumber(87e-46), new LongNumber(87e-45)), -1, '87e-46 < 87e-45 ');
-
-assert.equal(longCompare(new LongNumber(0), new LongNumber(-1)), 1, '0 > -1 ');
-assert.equal(longCompare(new LongNumber(100), new LongNumber(-1000)), 1, '100 > -1000 ');
-assert.equal(longCompare(new LongNumber(1), new LongNumber(-1.00000000001)), 1, '1 > -1.00000000001 ');
-assert.equal(longCompare(new LongNumber(87e-46), new LongNumber(-87e-45)), 1, '87e-46 > -87e-45 ');
-
-assert.equal(longCompare(new LongNumber(-100), new LongNumber(-1000)), 1, '-100 > -1000 ');
-assert.equal(longCompare(new LongNumber(-1), new LongNumber(-1.00000000001)), 1, '-1 > -1.00000000001 ');
-assert.equal(longCompare(new LongNumber(-87e-46), new LongNumber(-87e-45)), 1, '-87e-46 >  -87e-45 ');
-});
-
-QUnit.test('Adding long number', function(assert) {
-var sample = new LongNumber(0);
-var checked = longAdd(new LongNumber(0), new LongNumber(0));
-assert.propEqual(checked, sample, '0 + 0 = 0 ');
-
-var sample = new LongNumber(1);
-var checked = longAdd(new LongNumber(0), new LongNumber(1));
-assert.propEqual(checked, sample, '0 + 1 = 1 ');
-
-var sample = new LongNumber(1.23);
-var checked = longAdd(new LongNumber(1.23), new LongNumber(0));
-assert.propEqual(checked, sample, '1.23 + 0 = 0 ');
-
-var sample = new LongNumber(5.79);
-var checked = longAdd(new LongNumber(1.23), new LongNumber(4.56));
-assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
-
-var sample = new LongNumber(1000);
-var checked = longAdd(new LongNumber(999.9999), new LongNumber(0.0001));
-assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
-
-for (var i = 0; i < 10; i++) {
-var a = +String(Math.random() / 2).slice(0, 6);
-var b = +String(Math.random() / 2).slice(0, 6);
-var c = +(a + b).toPrecision(6);
-
-var sample = new LongNumber(c);
-var checked = longAdd(new LongNumber(a), new LongNumber(b));
-assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
-}
-
-for (var i = 0; i < 10; i++) {
-var a = +String(Math.random() * 1000000).slice(0, 12);
-var b = +String(Math.random() * 1000000).slice(0, 12);
-var c = +(a + b).toPrecision(13);
-
-var sample = new LongNumber(c);
-var checked = longAdd(new LongNumber(a), new LongNumber(b));
-assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
-}
+   var sample = new LongNumber(c);
+   var checked = longAdd(new LongNumber(a), new LongNumber(b));
+   assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+   }
 
 
 for (var i = 0; i < 10; i++) {

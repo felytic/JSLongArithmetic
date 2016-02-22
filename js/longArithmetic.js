@@ -80,15 +80,21 @@ class LongNumber {
     return str.substring(0, lastDigit + 1);
   }
   
-  invert(number){
+  invert(){
+    var result = this.clone();
+    result.sign = -this.sign;
+    return result;
+  }
+
+  clone(){
     var result = new LongNumber();
-    if (number.sign == 0) return result;
+    if (this.sign == 0) return result;
 
     result.begin = this.begin;
     result.end = this.end;
-    result.sign = -this.sign;
+    result.sign = this.sign;
     result.digits = {};
-    for (item in this.digits){
+    for (var item in this.digits){
       result.digits[item] = this.digits[item];
     }
     return result;
@@ -134,6 +140,7 @@ class LongNumber {
   static add(a, b){
     toLongNumber(a);
     toLongNumber(b);
+    
   }
 } 
 

@@ -98,11 +98,17 @@ for (let i = 0; i < 10; i++) {
    });
  */
 QUnit.test('Comparing two long numbers', function(assert) {
-    assert.equal(LongNumber.compare(new LongNumber(0), new LongNumber(0)), 0, '0 == 0 ');
-    assert.equal(LongNumber.compare(new LongNumber(1), new LongNumber(1)), 0, '1 == 1 ');
-    assert.equal(LongNumber.compare(new LongNumber(-1), new LongNumber(-1)), 0, '-1 == -1 ');
-    assert.equal(LongNumber.compare(new LongNumber(12.34), new LongNumber(12.34)), 0, '12.34 == 12.34 ');
-    assert.equal(LongNumber.compare(new LongNumber(1e+2), new LongNumber(100)), 0, '1e+2 == 100 ');
+    assert.equal(LongNumber.compare(new LongNumber(0), new LongNumber(0)),
+        0, '0 == 0 ');
+    assert.equal(LongNumber.compare(new LongNumber(1),
+          new LongNumber(1)), 0, '1 == 1 ');
+    assert.equal(LongNumber.compare(new LongNumber(-1), 
+          new LongNumber(-1)), 0, '-1 == -1 ');
+
+    assert.equal(LongNumber.compare(new LongNumber(12.34),
+          new LongNumber(12.34)), 0, '12.34 == 12.34 ');
+    assert.equal(LongNumber.compare(new LongNumber(1e+2), 
+          new LongNumber(100)), 0, '1e+2 == 100 ');
     assert.equal(LongNumber.compare(new LongNumber(-0), new LongNumber(0)), 0, '-0 == 0 ');
 
     assert.equal(LongNumber.compare(new LongNumber(1), new LongNumber(0)), 1, '1 > 0 ');
@@ -125,6 +131,31 @@ QUnit.test('Comparing two long numbers', function(assert) {
     assert.equal(LongNumber.compare(new LongNumber(-87e-46), new LongNumber(-87e-45)), 1, '-87e-46 >  -87e-45 ');
 });
 
+QUnit.test('Cloning LongNumber', function (assert){
+    var a = new LongNumber(0);
+    assert.propEqual(a, a.clone(), '0 = 0');
+
+    for (let i = 0; i < 5; i++){
+      var x = Math.random() * 100 - 50;
+      var sample = new LongNumber(x);
+      var checked = new LongNumber(x).clone();
+      assert.propEqual( checked, sample, x + ' = ' + x ) 
+    }
+});
+
+QUnit.test('Inverting LongNumber', function (assert){
+
+    var a = new LongNumber(0);
+    assert.propEqual(a, a.invert(), '0 = -0');
+    assert.propEqual(a, a.invert().invert(), '0 = --0');
+
+    for (let i = 0; i < 5; i++){
+      var x = Math.random() * 100 - 50;
+      var sample = new LongNumber(x);
+      var checked = new LongNumber(-x).invert();
+      assert.propEqual( checked, sample, x + ' = -' + x ) 
+    }
+});
 /*QUnit.test('Adding long number', function(assert) {
   var sample = new LongNumber(0);
   var checked = longAdd(new LongNumber(0), new LongNumber(0));

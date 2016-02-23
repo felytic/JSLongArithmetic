@@ -100,7 +100,10 @@ class LongNumber {
     }
     return result;
   }
-
+  
+  add(b){
+    return LongNumber.add(this, b);
+  }
   //----------Static Methods ---------------------
   static compare(longA, longB) {
     longA = LongNumber.toLongNumber(longA);

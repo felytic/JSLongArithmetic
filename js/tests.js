@@ -156,81 +156,61 @@ QUnit.test('Inverting LongNumber', function (assert){
       assert.propEqual( checked, sample, x + ' = -' + x ) 
     }
 });
-/*QUnit.test('Adding long number', function(assert) {
-  var sample = new LongNumber(0);
-  var checked = longAdd(new LongNumber(0), new LongNumber(0));
-  assert.propEqual(checked, sample, '0 + 0 = 0 ');
+QUnit.test('Adding long number', function(assert) {
+    var sample = new LongNumber(0);
+    var checked = LongNumber.add(new LongNumber(0), new LongNumber(0));
+    assert.propEqual(checked, sample, '0 + 0 = 0 ');
 
-  var sample = new LongNumber(1);
-  var checked = longAdd(new LongNumber(0), new LongNumber(1));
-  assert.propEqual(checked, sample, '0 + 1 = 1 ');
+    var sample = new LongNumber(1);
+    var checked = LongNumber.add(new LongNumber(0), new LongNumber(1));
+    assert.propEqual(checked, sample, '0 + 1 = 1 ');
 
-  var sample = new LongNumber(1.23);
-  var checked = longAdd(new LongNumber(1.23), new LongNumber(0));
-  assert.propEqual(checked, sample, '1.23 + 0 = 0 ');
+    var sample = new LongNumber(1.23);
+    var checked = LongNumber.add(new LongNumber(1.23), new LongNumber(0));
+    assert.propEqual(checked, sample, '1.23 + 0 = 0 ');
 
-  var sample = new LongNumber(5.79);
-  var checked = longAdd(new LongNumber(1.23), new LongNumber(4.56));
-  assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
+    var sample = new LongNumber(5.79);
+    var checked = LongNumber.add(new LongNumber(1.23), new LongNumber(4.56));
+    assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
 
-  var sample = new LongNumber(1000);
-  var checked = longAdd(new LongNumber(999.9999), new LongNumber(0.0001));
-  assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
+    var sample = new LongNumber(1000);
+    var checked = LongNumber.add(new LongNumber(999.9999), new LongNumber(0.0001));
+    assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
 
-  for (var i = 0; i < 10; i++) {
-  var a = +String(Math.random() / 2).slice(0, 6);
-  var b = +String(Math.random() / 2).slice(0, 6);
-  var c = +(a + b).toPrecision(6);
+    for (var i = 0; i < 10; i++) {
+      var a = +String(Math.random() / 2).slice(0, 6);
+      var b = +String(Math.random() / 2).slice(0, 6);
+      var c = +(a + b).toPrecision(6);
 
-  var sample = new LongNumber(c);
-  var checked = longAdd(new LongNumber(a), new LongNumber(b));
-  assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
-  }
+      var sample = new LongNumber(c);
+      var checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    }
 
-  for (var i = 0; i < 10; i++) {
-  var a = +String(Math.random() * 1000000).slice(0, 12);
-  var b = +String(Math.random() * 1000000).slice(0, 12);
-  var c = +(a + b).toPrecision(13);
+    for (var i = 0; i < 10; i++) {
+      var a = +String(Math.random() * 1000000).slice(0, 12);
+      var b = +String(Math.random() * 1000000).slice(0, 12);
+      var c = +(a + b).toPrecision(13);
 
-  var sample = new LongNumber(c);
-  var checked = longAdd(new LongNumber(a), new LongNumber(b));
-  assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
-  }
+      var sample = new LongNumber(c);
+      var checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    }
 
 
-  for (var i = 0; i < 10; i++) {
-  var a = -Math.floor(Math.random() * Math.pow(10, 10));
-  var b = -Math.floor(Math.random() * Math.pow(10, 10));
-  var c = a + b;
+    for (var i = 0; i < 10; i++) {
+      var a = -Math.floor(Math.random() * Math.pow(10, 10));
+      var b = -Math.floor(Math.random() * Math.pow(10, 10));
+      var c = a + b;
 
-  var sample = new LongNumber(c);
-  var checked = longAdd(new LongNumber(a), new LongNumber(b));
-  assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
-  }
+      var sample = new LongNumber(c);
+      var checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    }
 
-  var a = new LongNumber('1e+10000');
-  a.__end = -10000;
-  a.numbers = {
-  '10000': 8,
-  '9999': 8,
-0: 1,
-'-10000': 7,
-};
-var c = new LongNumber('1e+10001');
-c.__end = -10000;
-c.numbers = {
-'10001': 1,
-'10000': 7,
-'9999': 6,
-0: 2,
-'-9999': 1,
-'-10000': 4,
-};
-var sample = c;
-var checked = longAdd(a, a);
-assert.propEqual(checked, sample, a + ' + ' + a + ' = ' + c);
 });
-QUnit.test('Incrementing number', function(assert) {
+
+/*QUnit.test('Incrementing number', function(assert) {
 
     var checked = new LongNumber(0);
     checked.inc(new LongNumber(1));

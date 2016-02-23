@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
-//import LongNumber from "longArithmetic.js";
-//import QUnit from "qunit.js";
+//import LongNumber from 'longArithmetic.js';
+//import QUnit from 'qunit.js';
 
 QUnit.test('Creating long number', function(assert) {
     'use strict';
@@ -156,6 +156,7 @@ QUnit.test('Inverting LongNumber', function (assert){
       assert.propEqual( checked, sample, x + ' = -' + x ) 
     }
 });
+
 QUnit.test('Adding long number', function(assert) {
     var sample = new LongNumber(0);
     var checked = LongNumber.add(new LongNumber(0), new LongNumber(0));
@@ -174,7 +175,8 @@ QUnit.test('Adding long number', function(assert) {
     assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
 
     var sample = new LongNumber(1000);
-    var checked = LongNumber.add(new LongNumber(999.9999), new LongNumber(0.0001));
+    var checked = LongNumber.add(new LongNumber(999.9999),
+        new LongNumber(0.0001));
     assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
 
     for (var i = 0; i < 10; i++) {
@@ -284,3 +286,120 @@ QUnit.test('Incrementing number', function(assert) {
     assert.equal(true, true, '500000 tests');
     });
 */
+QUnit.test('Subtracting long number', function(assert) {
+    var sample = new LongNumber(0);
+    var checked = LongNumber.subtract(new LongNumber(0), new LongNumber(0));
+    assert.propEqual(checked, sample, '0 - 0 = 0 ');
+
+    var sample = new LongNumber(-1);
+    var checked = LongNumber.subtract(new LongNumber(0), new LongNumber(1));
+    assert.propEqual(checked, sample, '0 - 1 = -1 ');
+
+    var sample = new LongNumber(1.23);
+    var checked = LongNumber.subtract(new LongNumber(1.23), new LongNumber(0));
+    assert.propEqual(checked, sample, '1.23 - 0 = 0 ');
+
+    var sample = new LongNumber(4.56);
+    var checked = LongNumber.subtract(new LongNumber(5.79),
+        new LongNumber(1.23));
+    assert.propEqual(checked, sample, '5.79 - 1.23 = 4.56');
+
+    var sample = new LongNumber(999.9999);
+    var checked = LongNumber.subtract(new LongNumber(1000),
+        new LongNumber(0.0001));
+    assert.propEqual(checked, sample, '1000 - 0.0001 = 999.9999');
+
+    for (var i = 0; i < 10; i++) {
+      var a = +String(Math.random() / 2).slice(0, 6);
+      var b = +String(Math.random() / 2).slice(0, 6);
+      var c = +(a - b).toPrecision(6);
+
+      var sample = new LongNumber(c);
+      var checked = LongNumber.subtract(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' - ' + b + ' = ' + c);
+    }
+
+    for (var i = 0; i < 10; i++) {
+      var a = +String(Math.random() * 1000000).slice(0, 12);
+      var b = +String(Math.random() * 1000000).slice(0, 12);
+      var c = +(a - b).toPrecision(13);
+
+      var sample = new LongNumber(c);
+      var checked = LongNumber.subtract(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' - ' + b + ' = ' + c);
+    }
+
+
+    for (var i = 0; i < 10; i++) {
+      var a = -Math.floor(Math.random() * Math.pow(10, 10));
+      var b = -Math.floor(Math.random() * Math.pow(10, 10));
+      var c = a - b;
+
+      var sample = new LongNumber(c);
+      var checked = LongNumber.subtract(new LongNumber(a), new LongNumber(b));
+      assert.propEqual(checked, sample, a + ' - ' + b + ' = ' + c);
+    }
+});
+
+
+QUnit.test('Decrementing long number', function(assert) {
+
+    var checked = new LongNumber(0);
+    var sample = new LongNumber(-1);
+    assert.propEqual(checked.subtract(new LongNumber(1)), sample,
+        '0 -= 1 == -1');
+
+    checked = new LongNumber('23.4e+100');
+    sample = new LongNumber(0);
+    assert.propEqual(checked.subtract(new LongNumber('23.4e+100')), sample,
+        '23.4e+100 -= 23.4e+100 == 0');
+
+    checked = new LongNumber(2.234);
+    sample = new LongNumber(1.234);
+    assert.propEqual(checked.subtract(new LongNumber(1)), sample, 
+        '2.234 -= 1 == 1.234');
+
+    sample = new LongNumber(999.9999);
+    checked = new LongNumber(1000);
+    assert.propEqual(checked.subtract(new LongNumber(0.0001)), sample, 
+        '1000 -= 0.0001 == 999.9999');
+
+    sample = new LongNumber('14e+70');
+    checked = new LongNumber('1400023e+65');
+    assert.propEqual(checked.subtract(new LongNumber('23e+65')), sample, 
+        '1400023e+65 -= 23e+65 == 14e+70');
+
+    for (let i = 0; i < 10; i++) {
+      let a = +String(Math.random() / 2).slice(0, 6);
+      let b = +String(Math.random() / 2).slice(0, 6);
+      let c = +(a - b).toPrecision(6);
+
+      sample = new LongNumber(c);
+      checked = new LongNumber(a);
+      assert.propEqual(checked.subtract(new LongNumber(b)), sample, 
+          a + ' =- ' + b + ' = ' + c);
+    }
+
+    for (let i = 0; i < 10; i++) {
+      let a = +String(Math.random() * 1000000).slice(0, 12);
+      let b = +String(Math.random() * 1000000).slice(0, 12);
+      let c = +(a - b).toPrecision(13);
+
+      sample = new LongNumber(c);
+      checked = new LongNumber(a);
+      assert.propEqual(checked.subtract(new LongNumber(b)), sample,
+          a + ' =- ' + b + ' = ' + c);
+    }
+
+
+    for (let i = 0; i < 10; i++) {
+      let a = -Math.floor(Math.random() * Math.pow(10, 10));
+      let b = -Math.floor(Math.random() * Math.pow(10, 10));
+      let c = a - b;
+
+      sample = new LongNumber(c);
+      checked = new LongNumber(a);
+      assert.propEqual(checked.subtract(new LongNumber(b)), sample, 
+          a + ' =- ' + b + ' = ' + c);
+    }
+});

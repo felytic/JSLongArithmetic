@@ -104,6 +104,10 @@ class LongNumber {
   add(b){
     return LongNumber.add(this, b);
   }
+  
+  subtract(b){
+    return LongNumber.subtract(this, b);
+  }
   //----------Static Methods ---------------------
   static compare(longA, longB) {
     longA = LongNumber.toLongNumber(longA);
@@ -147,12 +151,12 @@ class LongNumber {
 
     if (a.sign == 0) return b.clone();
     if (b.sign == 0) return a.clone();
-    if (a.sign != b.sign) return LongNumber.substract(a, b);
+    if (a.sign != b.sign) return LongNumber.subtract(a, b);
 
-    var result = new LongNumber();
     var begin = Math.max(a.begin, b.begin);
     var end = Math.min(a.end, b.end);
 
+    var result = new LongNumber();
     result.sign = a.sign;
     result.end = end;
     result.begin = begin;
@@ -183,6 +187,61 @@ class LongNumber {
         result.end++; 
     }
     
+    return result;
+  }
+  
+  static subtract(a, b){
+    LongNumber.toLongNumber(a);
+    LongNumber.toLongNumber(b);
+    
+    if (a.sign == 0) return b.invert();
+    if (b.sign == 0) return a.clone();
+    if (a.sign != b.sign) return LongNumber.add(a, b.invert());
+    
+    var aCompareb =  LongNumber.absCompare(a, b); 
+    if (aCompareb == 0) return new LongNumber(); 
+
+    var begin = Math.max(a.begin, b.begin);
+    var end = Math.min(a.end, b.end);
+
+    var result = new LongNumber();
+    result.sign = a.sign;
+    result.end = end;
+    result.begin = begin;
+    result.digits = {};
+
+    if (aCompareb < 0){
+      result.sign = -result.sign;
+      var c = a;
+      a = b;
+      b = c;
+    }
+   
+    for (let i = end; i <= begin; i++){
+      var x = a.digits[i] ? a.digits[i] : 0;
+      var y = b.digits[i] ? b.digits[i] : 0;
+      
+      result.digits[i] = x - y;
+    }
+   
+    var max = Math.pow(10, base);
+    for (let i = end; i <= begin; i++){
+      if (result.digits[i] < 0){
+        result.digits[i] += max;
+        result.digits[i + 1] -= 1;
+      }
+    } 
+
+    while (result.digits[result.end] == 0){
+        delete result.digits[result.end];
+        result.end++; 
+    }
+
+    while (result.digits[result.begin] == 0){
+        delete result.digits[result.begin];
+        result.begin--; 
+    }
+
     return result;
   }
 } 

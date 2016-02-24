@@ -1,32 +1,44 @@
-/*jshint esversion: 6 */ 
+/*jshint esversion: 6 */
 
-//-------- Long Number class ----------------
-var pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
-const base = 3; //10^15
+//pattern ex: -123.456e+20
+const pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
+const base = 7; //10^7
+const max = Math.pow(10, base);
 
 class LongNumber {
-  constructor(number = 0) {
+
+  constructor(number, begin, end, sign, digitsObj) {
+
+    if ((typeof(begin) == 'number') && (typeof(end) == 'number') &&
+        (typeof(sign) == 'number') && (typeof(digitsObj) == 'object')) {
+      this.begin = begin;
+      this.end = end;
+      this.sign = sign;
+      this.digits = digitsObj;
+      return;
+    }
+
+    if (!number) number = 0;
     number = String(number);
-    //Check for number pattern ex: -123.456e+20
     var match = pattern.exec(number);
     if (!match) throw new TypeError('Wrong number format');
 
-    const sign = match[1];
+    const signChar = match[1];
     const mainDigits = match[2];
     const zeroesBeforeDot = match[3];
     const zeroesAfterDot = match[5];
     const digitsAfterDot = match[6];
     const e = match[8];
 
-    this.end = e ? +e : 0;
-    this.sign = sign == '-' ? -1 : 1;
+    this.end = toNum(e);
+    this.sign = signChar == '-' ? -1 : 1;
     var digits = '';
 
     if (digitsAfterDot) {
       this.end -= digitsAfterDot.length + zeroesAfterDot.length;
       if (mainDigits) {
         digits += mainDigits + zeroesBeforeDot + zeroesAfterDot;
-      } 
+      }
       digits += digitsAfterDot;
     } else {
       this.end += zeroesBeforeDot.length;
@@ -38,35 +50,44 @@ class LongNumber {
         return;
       }
     }
-    var shift = Math.abs(this.end % base);    
-    if (this.end < 0 && shift != 0) {
+
+    var shift = Math.abs(this.end % base);
+    if (this.end < 0 && shift !== 0) {
       shift = base - shift;
     }
+
     this.end -= shift;
     var endZeroes = '';
-    for (let i = 0; i < shift; i++) endZeroes += '0';
+
+    for (let i = 0; i < shift; i++) {
+      endZeroes += '0';
+    }
+
     digits += endZeroes;
     this.digits = {};
     this.begin = Math.floor((this.end + digits.length - 1) / base);
     this.digits[this.begin] = +digits.slice(0, digits.length % base);
-    for (let i = digits.length - base; i >= 0; i -= base){
-      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] =
-        +digits.slice(i, i + base);        
-    }
-    this.end /= base;
 
+    for (let i = digits.length - base; i >= 0; i -= base) {
+      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] = +digits.slice(i, i + base);
+    }
+
+    this.end /= base;
   }
 
-  //------ Methods --------------------------------------
+//--------------------------- Methods -----------------------------------------
+
   toString() {
-    if (this.sign === 0) return '0';
+    if (this.isZero()) return '0';
+
     var str = this.sign == -1 ? '-' : '';
     var digit;
     var begin = this.begin > 0 ? this.begin : 0;
     var end = this.end < 0 ? this.end : 0;
-    for (let i = begin; i >= end; i--){
+
+    for (let i = begin; i >= end; i--) {
       if (i == -1) {
-        str += '.'
+        str += '.';
       }
       digit = this.digits[i] ? '' + this.digits[i] : '0';
       if ((i < this.begin) || (i < 0)) {
@@ -74,175 +95,232 @@ class LongNumber {
       }
       str += digit;
     }
+
     var lastDigit = str.length - 1;
-    if (this.end < 0){
+    if (this.end < 0) {
       while (str[lastDigit] == "0") lastDigit--;
     }
+
     return str.substring(0, lastDigit + 1);
   }
 
-  invert(){
+  invert() {
     var result = this.clone();
     result.sign = -this.sign;
     return result;
   }
 
-  clone(){
-    var result = new LongNumber();
-    if (this.sign == 0) return result;
+  clone() {
+    if (this.isZero()) return new LongNumber();
 
-    result.begin = this.begin;
-    result.end = this.end;
-    result.sign = this.sign;
-    result.digits = {};
-    for (var item in this.digits){
-      result.digits[item] = this.digits[item];
+    var result = new LongNumber(null, this.begin, this.end, this.sign, {});
+
+    for (var i in this.digits) {
+      result.digits[i] = this.digits[i];
     }
+
     return result;
   }
-  
-  add(b){
+
+  isZero() {
+    return this.sign === 0;
+  }
+
+  isOne() {
+    return (this.digits == {
+      0: 1
+    } && this.sign == 1);
+  }
+
+  isMinusOne() {
+    return (this.digits == {
+      0: 1
+    } && this.sign == -1);
+  }
+
+  isPositive() {
+    return this.sign > 0;
+  }
+
+  isNegative() {
+    return this.sign < 0;
+  }
+
+  isNotNegative() {
+    return this.sign >= 0;
+  }
+
+  isNotPositive() {
+    return this.sign <= 0;
+  }
+
+  add(b) {
     return LongNumber.add(this, b);
   }
-  
-  subtract(b){
+
+  subtract(b) {
     return LongNumber.subtract(this, b);
   }
-  //----------Static Methods ---------------------
-  static compare(longA, longB) {
-    longA = LongNumber.toLongNumber(longA);
-    longB = LongNumber.toLongNumber(longB);
-    if (longA.sign > 0) {
-      if (longB.sign <= 0) return 1;
-      return LongNumber.absCompare(longA, longB);
+
+  _removeZeroes() {
+    while (this.digits[this.end] === 0) {
+      delete this.digits[this.end];
+      this.end++;
     }
-    if (longA.sign < 0) {
-      if (longB.sign >= 0) return -1;
-      return LongNumber.absCompare(longB, longA);
+
+    while (this.digits[this.begin] === 0) {
+      delete this.digits[this.begin];
+      this.begin--;
     }
-    if (longB.sign > 0) return -1;
-    if (longB.sign === 0) return 0;
-    if (longB.sign < 0) return 1;
   }
 
-  static absCompare(longA, longB) {
-    longA = LongNumber.toLongNumber(longA);
-    longB = LongNumber.toLongNumber(longB);
-    if (longA.begin > longB.begin) return 1;
-    if (longA.begin < longB.begin) return -1;
-    for (var i = longA.begin; i >= longA.end; i--) {
-      var a = longA.digits[i] ? longA.digits[i] : 0;
-      var b = longB.digits[i] ? longB.digits[i] : 0;
-      if (a > b) return 1;
-      if (a < b) return -1;
-    }
-    if (longB.end < longA.end) return -1;
-    else return 0;
+  //--------------------- Static Methods ----------------------------------------
+
+  static compare(a, b) {
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
+
+    if (a.isZero()) return -b.sign;
+
+    if (a.isPositive() && b.isNotPositive()) return 1;
+    if (a.isNegative() && b.isNotNegative()) return -1;
+
+    //If numbers are both negative a.sign will reverse the result
+    return LongNumber.absCompare(a, b) * a.sign;
   }
 
-  static toLongNumber(x){
-    if (!(x instanceof LongNumber)) return new LongNumber(x);
+  //Comparing by absolute value
+  static absCompare(a, b) {
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
+
+    if (a.isZero() && b.isZero()) return 0;
+    if (a.isZero()) return -1;
+    if (b.isZero()) return 1;
+
+    if (a.begin > b.begin) return 1;
+    if (a.begin < b.begin) return -1;
+
+    for (var i = a.begin; i >= a.end; i--) {
+      var digitA = toNum(a.digits[i]);
+      var digitB = toNum(b.digits[i]);
+
+      if (digitA > digitB) return 1;
+      if (digitA < digitB) return -1;
+    }
+
+    if (b.end < a.end) return -1;
+
+    return 0;
+  }
+
+  static toLongNumber(x) {
+    if (!(x instanceof LongNumber)) {
+      return new LongNumber(x);
+    }
+
     return x;
   }
 
-  static add(a, b){
-    LongNumber.toLongNumber(a);
-    LongNumber.toLongNumber(b);
+  static add(a, b) {
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
 
-    if (a.sign == 0) return b.clone();
-    if (b.sign == 0) return a.clone();
+    if (a.isZero()) return b.clone();
+    if (b.isZero()) return a.clone();
+
     if (a.sign != b.sign) return LongNumber.subtract(a, b);
 
-    var begin = Math.max(a.begin, b.begin);
+    var begin = Math.max(a.begin, b.begin) + 1; //Extra digit before
     var end = Math.min(a.end, b.end);
+    var result = new LongNumber(null, begin, end, a.sign, {});
+    result.digits[begin] = 0; //can be increased while addition, undef += n = NaN
 
-    var result = new LongNumber();
-    result.sign = a.sign;
-    result.end = end;
-    result.begin = begin;
-    result.digits = {};
-    
-    for (let i = end; i <= begin; i++){
-      var x = a.digits[i] ? a.digits[i] : 0;
-      var y = b.digits[i] ? b.digits[i] : 0;
-      result.digits[i] = x + y;
+    for (let i = end; i <= begin; i++) {
+      result.digits[i] = toNum(a.digits[i]) + toNum(b.digits[i]);
     }
-    
-    var max = Math.pow(10, base);
-    for (let i = end; i < begin; i++){
-      if (result.digits[i] >= max){
-        result.digits[i + 1] += 1;
-        result.digits[i] -= max;
+
+    for (let i = end; i <= begin; i++) {
+      if (result.digits[i] >= max) {
+        result.digits[i + 1] += Math.floor(result.digits[i] / max);
+        result.digits[i] %= max;
       }
     }
-
-    if (result.digits[begin] >= max){
-      result.digits[begin + 1] = 1;
-      result.digits[begin] -= max;
-      result.begin++;
-    }
-    
-    while (result.digits[result.end] == 0){
-        delete result.digits[result.end];
-        result.end++; 
-    }
-    
+    result._removeZeroes();
     return result;
   }
-  
-  static subtract(a, b){
+
+  static subtract(a, b) {
     LongNumber.toLongNumber(a);
     LongNumber.toLongNumber(b);
-    
-    if (a.sign == 0) return b.invert();
-    if (b.sign == 0) return a.clone();
+
+    if (a.sign === 0) return b.invert();
+    if (b.sign === 0) return a.clone();
     if (a.sign != b.sign) return LongNumber.add(a, b.invert());
-    
-    var aCompareb =  LongNumber.absCompare(a, b); 
-    if (aCompareb == 0) return new LongNumber(); 
+
+    var aCompareB = LongNumber.absCompare(a, b);
+
+    if (aCompareB === 0) return new LongNumber();
 
     var begin = Math.max(a.begin, b.begin);
     var end = Math.min(a.end, b.end);
+    var result = new LongNumber(null, begin, end, a.sign, {});
 
-    var result = new LongNumber();
-    result.sign = a.sign;
-    result.end = end;
-    result.begin = begin;
-    result.digits = {};
-
-    if (aCompareb < 0){
+    if (aCompareB < 0) {
       result.sign = -result.sign;
       var c = a;
       a = b;
       b = c;
     }
-   
-    for (let i = end; i <= begin; i++){
-      var x = a.digits[i] ? a.digits[i] : 0;
-      var y = b.digits[i] ? b.digits[i] : 0;
-      
-      result.digits[i] = x - y;
+
+    for (let i = end; i <= begin; i++) {
+      result.digits[i] = toNum(a.digits[i]) - toNum(b.digits[i]);
     }
-   
-    var max = Math.pow(10, base);
-    for (let i = end; i <= begin; i++){
-      if (result.digits[i] < 0){
+
+    for (let i = end; i <= begin; i++) {
+      if (result.digits[i] < 0) {
         result.digits[i] += max;
         result.digits[i + 1] -= 1;
       }
-    } 
-
-    while (result.digits[result.end] == 0){
-        delete result.digits[result.end];
-        result.end++; 
     }
 
-    while (result.digits[result.begin] == 0){
-        delete result.digits[result.begin];
-        result.begin--; 
+    result._removeZeroes();
+    return result;
+  }
+
+  static multiply(a, b) {
+    LongNumber.toLongNumber(a);
+    LongNumber.toLongNumber(b);
+
+    if (a.isZero() || b.isZero()) {
+      return new LongNumber();
+    }
+
+    if (a.isOne()) return b.clone();
+    if (a.isMinusOne()) return b.invert();
+
+    if (b.isOne()) return a.clone();
+    if (b.isMinusOne()) return a.invert();
+
+    var begin = Math.max(a.begin, b.begin);
+    var end = Math.min(a.end, b.end);
+    var result = new LongNumber(null, begin, end, a.sign, {});
+
+    for (let i = end; i <= begin; i++) {
+      var tempResult = new LongNumber(null, begin, end, 1, {});
+
+      for (let j = end; j <= begin; j++) {
+        tempResult.digits[j] = toNum(a.digits[i]) * toNum(b.digits[j]);
+      }
+
+      result = result.add(tempResult);
     }
 
     return result;
   }
-} 
+}
 
+
+function toNum(n) {
+  return n ? +n : 0;
+}

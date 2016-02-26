@@ -11,22 +11,23 @@
 <body>
   <div id='main'>
     <h2>Try it:</h2>
-    <input type="number" placeholder="First long number">
-    <input type="number" placeholder="Second long number">
-    <button>Compare</button>
-    <button>Compare by absolute value</button>
-    <button>Add</button>
-    <button>Subtract</button>
-    <button>Multiply</button>
-    <button>Divide</button>
+    <input type="number" id="firstNumber" placeholder="First long number">
+    <input type="number" id="secondNumber" placeholder="Second long number">
+    <button onclick="compare()">Compare</button>
+    <button onclick="absCompare()">Compare by absolute value</button>
+    <button onclick="add()">Add</button>
+    <button onclick="subtract()">Subtract</button>
+    <button onclick="multiply()">Multiply</button>
+    <button onclick="divide()" disabled>Divide</button>
 
-    <input type="text" placeholder="Result" readonly>
+    <input type="text" id="result" placeholder="Result" readonly>
   </div>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
   <script src="js/qunit.js"></script>
   <script src="js/longArithmetic.js"></script>
   <script src="js/tests.js"></script>
+  <script src="js/pageScript.js"></script>
 </body>
 
 </html>

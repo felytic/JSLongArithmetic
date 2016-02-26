@@ -20,9 +20,15 @@ number 0. Argument can be both String or Number. You can add exponent too
 
 `toLongNumber(n)` Type conversion.
 
-`add(a, b)` Adds a to b, returns new instance of LongNumber.
+Methods below return new instance of LongNumber after doind operation
 
-`subtract(a, b)` Subtracts b from a, returns new instance of LongNumber.
+`add(a, b)` 
+
+`subtract(a, b)` 
+
+`multiply(a, b)`
+
+`divide(a, b)`
 
 ### Methods
 
@@ -32,11 +38,27 @@ number 0. Argument can be both String or Number. You can add exponent too
 
 `clone()` returns copy of current item.
 
-`add(n)` works as `LongNumber.add(this, n)`
+Methods below work as `LongNumber.method(this, n)`
 
-`subtract(n)` works as `LongNumber.subtract(this, n)`
+`add(n)`
+
+`subtract(n)`
+
+`multiply(n)`
+
+`divide(n)`
 
 #### And some boolean methods: 
 
 `isZero()` `isOne()` `isMinusOne()` `isPositive()`
 `isNegative()` `isNotNegative()` `isNotPositive()`
+
+### Tips
+
+All methods can get both Number and LongNumber as arguments:
+
+`a.add(new LongNumber(32))` is equal to `a.add(32)`
+
+You can create chains with methods:
+
+`a.add(123).multiply(b).invert()` for `-((a + 123) * b)`

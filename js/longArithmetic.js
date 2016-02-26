@@ -1,6 +1,5 @@
 /*jshint esversion: 6 */
 
-//pattern ex: -123.456e+20
 const pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
 const base = 7; //10^7
 const max = Math.pow(10, base);
@@ -69,8 +68,7 @@ class LongNumber {
     this.digits[this.begin] = +digits.slice(0, digits.length % base);
 
     for (let i = digits.length - base; i >= 0; i -= base) {
-      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] =
-        +digits.slice(i, i + base);
+      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] = +digits.slice(i, i + base);
     }
 
     this.end /= base;
@@ -128,15 +126,13 @@ class LongNumber {
   }
 
   isOne() {
-    return (this.digits == {
-      0: 1
-    } && this.sign == 1);
+    return (JSON.stringify(this.digits) === JSON.stringify({0: 1}) &&
+      this.sign == 1);
   }
 
   isMinusOne() {
-    return (this.digits == {
-      0: 1
-    } && this.sign == -1);
+    return (JSON.stringify(this.digits) === JSON.stringify({0: 1}) &&
+      this.sign == -1);
   }
 
   isPositive() {
@@ -161,6 +157,14 @@ class LongNumber {
 
   subtract(b) {
     return LongNumber.subtract(this, b);
+  }
+
+  multiply(b) {
+    return LongNumber.multiply(this, b);
+  }
+
+  divide(b) {
+    return LongNumber.divide(this,b);
   }
 
   _removeZeroes() {
@@ -310,7 +314,7 @@ class LongNumber {
       for (let j = end; j <= begin; j++) {
         tempResult.digits[i + j] = toNum(a.digits[i]) * toNum(b.digits[j]);
 
-        if (tempResult.digits[i + j - 1] > max){
+        if (tempResult.digits[i + j - 1] > max) {
           tempResult.digits[i + j] +=
             Math.floor(tempResult.digits[i + j - 1] / max);
           tempResult.digits[i + j - 1] %= max;
@@ -321,6 +325,33 @@ class LongNumber {
     }
 
     return result._removeZeroes();
+  }
+
+  static divide(a, b, precision = 100){
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
+
+    if (b.isZero()) throw new Error('Division by zero');
+    if (b.isOne()) return a.clone();
+    if (b.isMinusOne()) return a.clone().invert();
+    if (a.isZero()) return a.clone();
+
+  }
+
+  //private method, only for two posotive numbers
+  static _simpleDivide(a, b){
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
+
+    var result = new LongNumber();
+    var dividend = a.subtract(b);
+
+    while (dividend.isNotNegative()){
+      result = result.add(1);
+      dividend =  dividend.subtract(b);
+    }
+
+    return result;
   }
 }
 

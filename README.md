@@ -1,19 +1,30 @@
 # JS Long Arithmetic
 This lib provides arithmetical operation with numbers of different length and
-precision. It was written on **Ecmascript 6**. You can watch tests and try 
-it [here](http://felytic.github.io/JSLongArithmetic/).
+precision. It was written on **Ecmascript 6**. You can watch tests and try
+it [here](http://felytic.github.io/JSLongArithmetic/)
+(your browser has to support [ES6](#es6\_in\_browsers).
+
 
 ## Usage
 
+Just add [js/longArithmetic.js](https://raw.githubusercontent.com/Felytic/JSLongArithmetic/gh-pages/js/longArithmetic.js)
+to your project.
+
+#### ES6 in browsers
+
+**Chrome** enable [chrome://flags/#enable-javascript-harmony](chrome://flags/#enable-javascript-harmony)
+
+**Firefox** avaliable only in [Firefox Developer Edition](https://www.mozilla.org/firefox/developer/)
+
 ### Constructor
 
-`new LongNumber(number)` creates instance of a class. With no arguments creates 
+`new LongNumber(number)` creates instance of a class. With no arguments creates
 number 0. Argument can be both String or Number. You can add exponent too
 `new LongNumber('-4.35e-30')`.
 
 ### Static methods
 
-`compare(a, b)` compares two long numbers. Returns 1 ==> a > b, 
+`compare(a, b)` compares two long numbers. Returns 1 ==> a > b,
 0 ==> a == b, -1 ==> a < b.
 
 `absCompare(a, b)` works as `compare()`. Comparing by absolute value.
@@ -22,9 +33,9 @@ number 0. Argument can be both String or Number. You can add exponent too
 
 Methods below return new instance of LongNumber after doind operation
 
-`add(a, b)` 
+`add(a, b)`
 
-`subtract(a, b)` 
+`subtract(a, b)`
 
 `multiply(a, b)`
 
@@ -48,10 +59,10 @@ Methods below work as `LongNumber.method(this, n)`
 
 `divide(n)`
 
-#### And some boolean methods: 
+#### And some boolean methods:
 
 `isZero()` `isOne()` `isMinusOne()` `isPositive()`
-`isNegative()` `isNotNegative()` `isNotPositive()`
+`isNegative()`
 
 ### Tips
 

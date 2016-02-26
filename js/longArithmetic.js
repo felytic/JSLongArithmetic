@@ -143,14 +143,6 @@ class LongNumber {
     return this.sign < 0;
   }
 
-  isNotNegative() {
-    return this.sign >= 0;
-  }
-
-  isNotPositive() {
-    return this.sign <= 0;
-  }
-
   add(b) {
     return LongNumber.add(this, b);
   }
@@ -189,8 +181,8 @@ class LongNumber {
 
     if (a.isZero()) return -b.sign;
 
-    if (a.isPositive() && b.isNotPositive()) return 1;
-    if (a.isNegative() && b.isNotNegative()) return -1;
+    if (a.isPositive() && !b.isPositive()) return 1;
+    if (a.isNegative() && !b.isNegative()) return -1;
 
     //If numbers are both negative a.sign will reverse the result
     return LongNumber.absCompare(a, b) * a.sign;
@@ -235,7 +227,7 @@ class LongNumber {
 
     if (a.isZero()) return b.clone();
     if (b.isZero()) return a.clone();
-    if (a.sign != b.sign) return LongNumber.subtract(a, b);
+    if (a.sign != b.sign) return LongNumber.subtract(a, b.invert());
 
     var begin = Math.max(a.begin, b.begin) + 1; //Extra digit before
     var end = Math.min(a.end, b.end);
@@ -346,12 +338,12 @@ class LongNumber {
     var result = new LongNumber();
     var dividend = a.subtract(b);
 
-    while (dividend.isNotNegative()){
+    while (!dividend.isNegative()){
       result = result.add(1);
       dividend =  dividend.subtract(b);
     }
 
-    return result;
+    return {fract: result, remeaning: dividend.add(b)};
   }
 }
 

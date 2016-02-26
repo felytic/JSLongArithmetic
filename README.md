@@ -2,7 +2,7 @@
 This lib provides arithmetical operation with numbers of different length and
 precision. It was written on **Ecmascript 6**. You can watch tests and try
 it [here](http://felytic.github.io/JSLongArithmetic/)
-(your browser has to support [ES6](#es6\_in\_browsers).
+(your browser has to support [ES6](#es6-in-browsers).
 
 
 ## Usage

@@ -204,6 +204,11 @@ QUnit.test('Adding long number', function(assert) {
   checked = LongNumber.add(new LongNumber(1.23), new LongNumber(4.56));
   assert.propEqual(checked, sample, '1.23 + 4.56 = 5.79 ');
 
+  sample = new LongNumber(1);
+  checked = LongNumber.add(new LongNumber(-3),
+    new LongNumber(4));
+  assert.propEqual(checked, sample, '-3 + 4 = 1');
+
   sample = new LongNumber(1000);
   checked = LongNumber.add(new LongNumber(999.9999),
     new LongNumber(0.0001));
@@ -319,6 +324,11 @@ QUnit.test('Subtracting long number', function(assert) {
   checked = LongNumber.subtract(new LongNumber(5.79),
     new LongNumber(1.23));
   assert.propEqual(checked, sample, '5.79 - 1.23 = 4.56');
+
+  sample = new LongNumber(1);
+  checked = LongNumber.subtract(new LongNumber(-3),
+    new LongNumber(-4));
+  assert.propEqual(checked, sample, '-3 - -4 = 1');
 
   sample = new LongNumber(999.9999);
   checked = LongNumber.subtract(new LongNumber(1000),

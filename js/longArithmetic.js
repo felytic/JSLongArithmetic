@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 const pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
-const base = 7; //10^7
+const base = 1; //10^7
 const max = Math.pow(10, base);
 
 class LongNumber {
@@ -30,6 +30,7 @@ class LongNumber {
     const e = match[8];
 
     this.end = toNum(e);
+    this.begin = 0;
     this.sign = signChar == '-' ? -1 : 1;
     var digits = '';
 
@@ -119,6 +120,10 @@ class LongNumber {
     }
 
     return result;
+  }
+
+  compare(n){
+    return LongNumber.compare(this, n);
   }
 
   isZero() {
@@ -320,6 +325,7 @@ class LongNumber {
   }
 
   static divide(a, b, precision = 100){
+    precision /= base;
     a = LongNumber.toLongNumber(a);
     b = LongNumber.toLongNumber(b);
 
@@ -328,6 +334,42 @@ class LongNumber {
     if (b.isMinusOne()) return a.clone().invert();
     if (a.isZero()) return a.clone();
 
+    var dividerLength = b.begin - b.end + 1;
+    var remeaning = new LongNumber(null, b.begin, b.end, b.sign, {});
+    var fraction = new LongNumber();
+    var shift = a.begin - b.begin;
+    var lastDigitPos = a.begin - dividerLength;
+
+    for (let i = 0; i < dividerLength; i++){
+      remeaning.digits[b.begin - i] = toNum(a.digits[a.begin - i]);
+    }
+
+    do {
+      var divisionResult = LongNumber._simpleDivide(remeaning, b);
+      var tempFraction = divisionResult.fraction;
+      var newDigits = {};
+
+      for (let i = tempFraction.begin; i <= tempFraction.end; i++){
+        newDigits[i + shift] = toNum(tempFraction.digits[i]);
+      }
+
+      tempFraction.digits = newDigits;
+      tempFraction.begin += shift;
+      tempFraction.end += shift;
+
+      fraction = fraction.add(tempFraction);
+
+      do {
+        remeaning = divisionResult.remeaning;
+        remeaning = remeaning.multiply(max).add(toNum(a.digits[lastDigitPos]));
+        shift--;
+        lastDigitPos--;
+      } while (remeaning.compare(b) == -1 &&
+          (!remeaning.isZero() || lastDigitPos > a.end));
+
+    } while (!remeaning.isZero() && (lastDigitPos > -precision));
+
+    return fraction;
   }
 
   //private method, only for two posotive numbers
@@ -343,7 +385,7 @@ class LongNumber {
       dividend =  dividend.subtract(b);
     }
 
-    return {fract: result, remeaning: dividend.add(b)};
+    return {fraction: result, remeaning: dividend.add(b)};
   }
 }
 

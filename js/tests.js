@@ -7,6 +7,7 @@ QUnit.test('Creating long number', function(assert) {
   var sample = {
     sign: 0,
     end: 0,
+    begin: 0,
     digits: {}
   };
   var checked = new LongNumber(0);
@@ -14,6 +15,7 @@ QUnit.test('Creating long number', function(assert) {
 
   sample = {
     sign: 0,
+    begin: 0,
     end: 0,
     digits: {}
   };
@@ -22,6 +24,7 @@ QUnit.test('Creating long number', function(assert) {
 
   sample = {
     sign: 0,
+    begin: 0,
     end: 0,
     digits: {}
   };
@@ -320,10 +323,16 @@ QUnit.test('Subtracting long number', function(assert) {
   checked = LongNumber.subtract(new LongNumber(1.23), new LongNumber(0));
   assert.propEqual(checked, sample, '1.23 - 0 = 0 ');
 
+
   sample = new LongNumber(4.56);
   checked = LongNumber.subtract(new LongNumber(5.79),
     new LongNumber(1.23));
   assert.propEqual(checked, sample, '5.79 - 1.23 = 4.56');
+
+  sample = new LongNumber();
+  checked = LongNumber.subtract(new LongNumber(5),
+    new LongNumber(5));
+  assert.propEqual(checked, sample, '5 - 5 = 0');
 
   sample = new LongNumber(1);
   checked = LongNumber.subtract(new LongNumber(-3),

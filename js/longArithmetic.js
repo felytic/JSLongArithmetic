@@ -10,7 +10,7 @@ class LongNumber {
   constructor(number, begin, end, sign, digitsObj) {
 
     if ((typeof(begin) == 'number') && (typeof(end) == 'number') &&
-        (typeof(sign) == 'number') && (typeof(digitsObj) == 'object')) {
+      (typeof(sign) == 'number') && (typeof(digitsObj) == 'object')) {
       this.begin = begin;
       this.end = end;
       this.sign = sign;
@@ -69,13 +69,14 @@ class LongNumber {
     this.digits[this.begin] = +digits.slice(0, digits.length % base);
 
     for (let i = digits.length - base; i >= 0; i -= base) {
-      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] = +digits.slice(i, i + base);
+      this.digits[Math.floor((digits.length + this.end - i) / base) - 1] =
+        +digits.slice(i, i + base);
     }
 
     this.end /= base;
   }
 
-//--------------------------- Methods -----------------------------------------
+  //--------------------------- Methods ---------------------------------------
 
   toString() {
     if (this.isZero()) return '0';
@@ -172,9 +173,11 @@ class LongNumber {
       delete this.digits[this.begin];
       this.begin--;
     }
+
+    return this;
   }
 
-  //--------------------- Static Methods ----------------------------------------
+  //--------------------- Static Methods --------------------------------------
 
   static compare(a, b) {
     a = LongNumber.toLongNumber(a);
@@ -228,31 +231,28 @@ class LongNumber {
 
     if (a.isZero()) return b.clone();
     if (b.isZero()) return a.clone();
-
     if (a.sign != b.sign) return LongNumber.subtract(a, b);
 
     var begin = Math.max(a.begin, b.begin) + 1; //Extra digit before
     var end = Math.min(a.end, b.end);
     var result = new LongNumber(null, begin, end, a.sign, {});
-    result.digits[begin] = 0; //can be increased while addition, undef += n = NaN
+    result.digits[begin] = 0; //for increasing while addition, undef += n = NaN
 
     for (let i = end; i <= begin; i++) {
       result.digits[i] = toNum(a.digits[i]) + toNum(b.digits[i]);
-    }
 
-    for (let i = end; i <= begin; i++) {
-      if (result.digits[i] >= max) {
-        result.digits[i + 1] += Math.floor(result.digits[i] / max);
-        result.digits[i] %= max;
+      if (result.digits[i - 1] >= max) {
+        result.digits[i] += 1;
+        result.digits[i - 1] -= max;
       }
     }
-    result._removeZeroes();
-    return result;
+
+    return result._removeZeroes();
   }
 
   static subtract(a, b) {
-    LongNumber.toLongNumber(a);
-    LongNumber.toLongNumber(b);
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
 
     if (a.sign === 0) return b.invert();
     if (b.sign === 0) return a.clone();
@@ -266,6 +266,7 @@ class LongNumber {
     var end = Math.min(a.end, b.end);
     var result = new LongNumber(null, begin, end, a.sign, {});
 
+    //for subtracting smaller number from bigger
     if (aCompareB < 0) {
       result.sign = -result.sign;
       var c = a;
@@ -275,22 +276,19 @@ class LongNumber {
 
     for (let i = end; i <= begin; i++) {
       result.digits[i] = toNum(a.digits[i]) - toNum(b.digits[i]);
-    }
 
-    for (let i = end; i <= begin; i++) {
-      if (result.digits[i] < 0) {
-        result.digits[i] += max;
-        result.digits[i + 1] -= 1;
+      if (result.digits[i - 1] < 0) {
+        result.digits[i - 1] += max;
+        result.digits[i] -= 1;
       }
     }
 
-    result._removeZeroes();
-    return result;
+    return result._removeZeroes();
   }
 
   static multiply(a, b) {
-    LongNumber.toLongNumber(a);
-    LongNumber.toLongNumber(b);
+    a = LongNumber.toLongNumber(a);
+    b = LongNumber.toLongNumber(b);
 
     if (a.isZero() || b.isZero()) {
       return new LongNumber();
@@ -302,21 +300,27 @@ class LongNumber {
     if (b.isOne()) return a.clone();
     if (b.isMinusOne()) return a.invert();
 
-    var begin = Math.max(a.begin, b.begin);
+    var begin = Math.max(a.begin, b.begin) + 1;
     var end = Math.min(a.end, b.end);
-    var result = new LongNumber(null, begin, end, a.sign, {});
+    var result = new LongNumber();
 
     for (let i = end; i <= begin; i++) {
-      var tempResult = new LongNumber(null, begin, end, 1, {});
+      var tempResult = new LongNumber(null, begin + i, end * 2, 1, {});
 
       for (let j = end; j <= begin; j++) {
-        tempResult.digits[j] = toNum(a.digits[i]) * toNum(b.digits[j]);
+        tempResult.digits[i + j] = toNum(a.digits[i]) * toNum(b.digits[j]);
+
+        if (tempResult.digits[i + j - 1] > max){
+          tempResult.digits[i + j] +=
+            Math.floor(tempResult.digits[i + j - 1] / max);
+          tempResult.digits[i + j - 1] %= max;
+        }
       }
 
       result = result.add(tempResult);
     }
 
-    return result;
+    return result._removeZeroes();
   }
 }
 

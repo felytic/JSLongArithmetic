@@ -438,40 +438,46 @@ QUnit.test('Multiplying long number', function(assert) {
   checked = LongNumber.multiply(new LongNumber(1.23), new LongNumber(4.56));
   assert.propEqual(checked, sample, '1.23 * 4.56 = 5.6088');
 
-  sample = new LongNumber(1000);
-  checked = LongNumber.add(new LongNumber(999.9999),
+  sample = new LongNumber(0.09999999);
+  checked = LongNumber.multiply(new LongNumber(999.9999),
     new LongNumber(0.0001));
-  assert.propEqual(checked, sample, '999.9999 + 0.0001 = 1000');
+  assert.propEqual(checked, sample, '999.9999 * 0.0001 = 0.09999999');
+
+  sample = new LongNumber('20014471685603893831.263910592021986112');
+  checked = LongNumber.multiply(new LongNumber('2016491153.9650038712'),
+    new LongNumber('9925395232.331995760'));
+  assert.propEqual(checked, sample, '2016491153.9650038712 * ' + 
+      '9925395232.331995760 = 20014471685603893831.263910592021986112');
 
   for (let i = 0; i < 10; i++) {
-    let a = +String(Math.random() / 2).slice(0, 6);
-    let b = +String(Math.random() / 2).slice(0, 6);
-    let c = +(a + b).toPrecision(6);
+    let a = +String(Math.random() / 2).slice(0, 5);
+    let b = +String(Math.random() / 2).slice(0, 5);
+    let c = +(a * b).toPrecision(6);
 
     sample = new LongNumber(c);
-    checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
-    assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    checked = LongNumber.multiply(new LongNumber(a), new LongNumber(b));
+    assert.propEqual(checked, sample, a + ' * ' + b + ' = ' + c);
   }
 
   for (let i = 0; i < 10; i++) {
-    let a = +String(Math.random() * 1000000).slice(0, 12);
-    let b = +String(Math.random() * 1000000).slice(0, 12);
-    let c = +(a + b).toPrecision(13);
+    let a = +String(Math.random() * 1000000).slice(0, 5);
+    let b = +String(Math.random() * 1000000).slice(0, 5);
+    let c = +(a * b);
 
     let sample = new LongNumber(c);
-    let checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
-    assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    let checked = LongNumber.multiply(new LongNumber(a), new LongNumber(b));
+    assert.propEqual(checked, sample, a + ' * ' + b + ' = ' + c);
   }
 
 
   for (let i = 0; i < 10; i++) {
-    let a = -Math.floor(Math.random() * Math.pow(10, 10));
-    let b = -Math.floor(Math.random() * Math.pow(10, 10));
-    let c = a + b;
+    let a = -Math.floor(Math.random() * Math.pow(10, 5));
+    let b = -Math.floor(Math.random() * Math.pow(10, 5));
+    let c = a * b;
 
     let sample = new LongNumber(c);
-    let checked = LongNumber.add(new LongNumber(a), new LongNumber(b));
-    assert.propEqual(checked, sample, a + ' + ' + b + ' = ' + c);
+    let checked = LongNumber.multiply(new LongNumber(a), new LongNumber(b));
+    assert.propEqual(checked, sample, a + ' * ' + b + ' = ' + c);
   }
 
 });

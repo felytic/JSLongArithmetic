@@ -39,7 +39,7 @@ Methods below return new instance of LongNumber after doind operation
 
 `multiply(a, b)`
 
-`divide(a, b)`
+`divide(a, b, precision)` (by default precision is 100)
 
 ### Methods
 
@@ -57,7 +57,7 @@ Methods below work as `LongNumber.method(this, n)`
 
 `multiply(n)`
 
-`divide(n)`
+`divide(n, precision)`
 
 #### And some boolean methods:
 

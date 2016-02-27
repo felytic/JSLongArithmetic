@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 const pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
-const base = 1; //10^7
+const base = 3; //10^7
 const max = Math.pow(10, base);
 
 class LongNumber {
@@ -120,6 +120,11 @@ class LongNumber {
     }
 
     return result;
+  }
+
+  abs(){
+    if (this.sign == -1) return this.invert();
+    return this;
   }
 
   compare(n){
@@ -325,7 +330,7 @@ class LongNumber {
   }
 
   static divide(a, b, precision = 100){
-    precision /= base;
+    precision = precision / base + 2;
     a = LongNumber.toLongNumber(a);
     b = LongNumber.toLongNumber(b);
 
@@ -333,6 +338,10 @@ class LongNumber {
     if (b.isOne()) return a.clone();
     if (b.isMinusOne()) return a.clone().invert();
     if (a.isZero()) return a.clone();
+
+    var negative = a.sign != b.sign ? true : false;
+    a = a.abs();
+    b = b.abs();
 
     var dividerLength = b.begin - b.end + 1;
     var remeaning = new LongNumber(null, b.begin, b.end, b.sign, {});
@@ -369,7 +378,7 @@ class LongNumber {
 
     } while (!remeaning.isZero() && (lastDigitPos > -precision));
 
-    return fraction;
+    return negative ? fraction.invert() : fraction;
   }
 
   //private method, only for two posotive numbers

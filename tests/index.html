@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Long arithmetc tests</title>
+  <link rel="stylesheet" href="css/qunit.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div id='main'>
+    <h2>Try it:</h2>
+    <input type="number" id="firstNumber" placeholder="First long number">
+    <input type="number" id="secondNumber" placeholder="Second long number">
+    <button onclick="compare()">Compare</button>
+    <button onclick="absCompare()">Compare by absolute value</button>
+    <button onclick="add()">Add</button>
+    <button onclick="subtract()">Subtract</button>
+    <button onclick="multiply()">Multiply</button>
+    <button onclick="divide()">Divide</button>
+
+    <input type="text" id="result" placeholder="Result" readonly>
+  </div>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <script src="js/qunit.js"></script>
+  <script src="js/longArithmetic.js"></script>
+  <script src="js/tests.js"></script>
+  <script src="js/pageScript.js"></script>
+</body>
+
+</html>

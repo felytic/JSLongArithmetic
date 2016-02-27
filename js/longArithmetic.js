@@ -1,15 +1,15 @@
 /*jshint esversion: 6 */
 
 const pattern = /^([+-])?0*(\d*?)(0*)(\.(0*)(\d*?)0*)?(e([+-]?\d+))?$/;
-const base = 3; //10^7
+const base = 3; //power of 10
 const max = Math.pow(10, base);
 
 class LongNumber {
 
   constructor(number, begin, end, sign, digitsObj) {
 
-    if ((typeof(begin) == 'number') && (typeof(end) == 'number') &&
-      (typeof(sign) == 'number') && (typeof(digitsObj) == 'object')) {
+    if (typeof(begin) == 'number' && typeof(end) == 'number' &&
+      typeof(sign) == 'number' && typeof(digitsObj) == 'object') {
       this.begin = begin;
       this.end = end;
       this.sign = sign;
@@ -81,11 +81,11 @@ class LongNumber {
     if (this.isZero()) return '0';
 
     var str = this.sign == -1 ? '-' : '';
-    var digit;
     var begin = this.begin > 0 ? this.begin : 0;
     var end = this.end < 0 ? this.end : 0;
 
     for (let i = begin; i >= end; i--) {
+      var digit;
       if (i == -1) {
         str += '.';
       }
@@ -111,8 +111,6 @@ class LongNumber {
   }
 
   clone() {
-    if (this.isZero()) return new LongNumber();
-
     var result = new LongNumber(null, this.begin, this.end, this.sign, {});
 
     for (var i in this.digits) {
@@ -122,12 +120,11 @@ class LongNumber {
     return result;
   }
 
-  abs(){
-    if (this.sign == -1) return this.invert();
-    return this;
+  abs() {
+    return this.sign == -1 ? this.invert() : this;
   }
 
-  compare(n){
+  compare(n) {
     return LongNumber.compare(this, n);
   }
 
@@ -336,25 +333,25 @@ class LongNumber {
 
     if (b.isZero()) throw new Error('Division by zero');
     if (b.isOne()) return a.clone();
-    if (b.isMinusOne()) return a.clone().invert();
+    if (b.isMinusOne()) return a.invert();
     if (a.isZero()) return a.clone();
 
-    var negative = a.sign != b.sign ? true : false;
+    var negative = a.sign != b.sign;
     a = a.abs();
     b = b.abs();
 
     var dividerLength = b.begin - b.end + 1;
-    var remeaning = new LongNumber(null, b.begin, b.end, b.sign, {});
+    var remainder = new LongNumber(null, b.begin, b.end, b.sign, {});
     var fraction = new LongNumber();
     var shift = a.begin - b.begin;
     var lastDigitPos = a.begin - dividerLength;
 
     for (let i = 0; i < dividerLength; i++){
-      remeaning.digits[b.begin - i] = toNum(a.digits[a.begin - i]);
+      remainder.digits[b.begin - i] = toNum(a.digits[a.begin - i]);
     }
 
     do {
-      var divisionResult = LongNumber._simpleDivide(remeaning, b);
+      var divisionResult = LongNumber._simpleDivide(remainder, b);
       var tempFraction = divisionResult.fraction;
       var newDigits = {};
 
@@ -369,14 +366,14 @@ class LongNumber {
       fraction = fraction.add(tempFraction);
 
       do {
-        remeaning = divisionResult.remeaning;
-        remeaning = remeaning.multiply(max).add(toNum(a.digits[lastDigitPos]));
+        remainder = divisionResult.remainder;
+        remainder = remainder.multiply(max).add(toNum(a.digits[lastDigitPos]));
         shift--;
         lastDigitPos--;
-      } while (remeaning.compare(b) == -1 &&
-          (!remeaning.isZero() || lastDigitPos > a.end));
+      } while (remainder.compare(b) == -1 &&
+          (!remainder.isZero() || lastDigitPos > a.end));
 
-    } while (!remeaning.isZero() && (lastDigitPos > -precision));
+    } while (!remainder.isZero() && (lastDigitPos > -precision));
 
     return negative ? fraction.invert() : fraction;
   }
@@ -394,7 +391,7 @@ class LongNumber {
       dividend =  dividend.subtract(b);
     }
 
-    return {fraction: result, remeaning: dividend.add(b)};
+    return {fraction: result, remainder: dividend.add(b)};
   }
 }
 

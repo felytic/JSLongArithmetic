@@ -7,7 +7,7 @@ it [here](http://felytic.github.io/JSLongArithmetic/)
 
 ## Usage
 
-Just add [js/longArithmetic.js](https://raw.githubusercontent.com/Felytic/JSLongArithmetic/gh-pages/js/longArithmetic.js)
+Just add [longArithmetic.js](https://raw.githubusercontent.com/Felytic/JSLongArithmetic/master/longArithmetic.js)
 to your project.
 
 #### ES6 in browsers
